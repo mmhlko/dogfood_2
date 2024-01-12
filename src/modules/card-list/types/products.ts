@@ -1,0 +1,16 @@
+export type TProduct = {
+    discount: number,
+    stock: number,
+    available: true,
+    pictures: string,
+    likes: string[],
+    //reviews: TReview[],
+    tags: string[],
+    isPublished: true,
+    _id: string,
+    name: string,
+    author: /* TUser */ any,
+    price: number,
+    wight: string,
+    description: string,      
+}
