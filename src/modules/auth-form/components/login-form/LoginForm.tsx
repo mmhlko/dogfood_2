@@ -2,11 +2,9 @@
 import { useForm } from 'react-hook-form';
 import s from './styles.module.scss'
 import classNames from 'classnames';
-import { MouseEvent, useEffect } from 'react';
 import Form from 'components/form/Form';
 import { FormInput } from 'components/form-input/FormInput';
 import FormButton from '../form-button';
-import { useLocation } from 'react-router-dom';
 import { RoutePath } from 'pages/routeConfig';
 
 interface ILoginFormProps {
@@ -37,10 +35,10 @@ const AuthForm = ({ onSubmit, onNavigate, isRegister }: ILoginFormProps) => {
             value: true,
             message: "Обязательное поле"
         },
-        pattern: {
+        /* pattern: {
             value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
             message: "Пароль должен содержать минимум восемь символов, одну букву латинского алфавита и одну цифру"
-        }
+        } */
     })
     const groupRegister = isRegister && register('group', {
         required: {

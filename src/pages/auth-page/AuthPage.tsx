@@ -1,6 +1,6 @@
-import { TLoginFormData, TRegisterFormData, authApi } from "modules/auth-form/api/authService";
+import { TLoginFormData, TRegisterFormData } from "modules/auth-form/api/authApi";
 import AuthForm from "modules/auth-form/components/login-form/LoginForm";
-import { fetchLoginUser, fetchRegisterUser } from "modules/auth-form/store/userSlice";
+import { fetchLoginUser, fetchRegisterUser } from "storage/user/userSlice";
 import { SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "storage/hookTypes";

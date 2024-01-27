@@ -1,7 +1,8 @@
 import { AxiosResponse } from "axios";
 import { RoutePath } from "pages/routeConfig";
-import { TUserResponseDto } from "types/api";
+import { TUserPassword, TUserResponseDto } from "types/userApi";
 import { api } from "utils/api";
+import { getToken } from "utils/auth";
 
 export type TAuthResponse = {
     data: TUserResponseDto;
@@ -24,8 +25,8 @@ class AuthService {
     register(formData: TRegisterFormData): Promise<AxiosResponse<TUserResponseDto>> {
         return api.post(RoutePath.register, formData);
     }
-    passwordReset(token:string, password:string) { //изменение пользователя
-        return api.patch(`/forgot-password/${token}`, {password: password})
+    passwordReset(password: TUserPassword) {
+        return api.patch(`/password-reset/${getToken()}`, password)
     }
     checkToken(): Promise<AxiosResponse<TUserResponseDto>> {
         return api.get("/users/me")

@@ -1,6 +1,6 @@
 import { SerializedError, createSlice } from "@reduxjs/toolkit"
 import { createAppAsyncThunk } from "storage/hookTypes"
-import { TProductResponseDto } from "types/api"
+import { TProductResponseDto } from "types/userApi"
 import { isLiked } from "utils/products"
 
 type TProductState = {

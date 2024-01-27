@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { RoutePath } from "pages/routeConfig";
-import { TProductResponseDto } from "types/api";
+import { TProductResponseDto } from "types/userApi";
 import { api } from "utils/api";
 
 export class ProductService {

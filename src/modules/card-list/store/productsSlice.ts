@@ -1,7 +1,7 @@
 import { SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { TABS_ID } from "../constants/constants"
 import { createAppAsyncThunk } from "storage/hookTypes"
-import { TProductResponseDto } from "types/api"
+import { TProductResponseDto } from "types/userApi"
 import { isLiked } from "utils/products"
 
 export type TProductsState = {
@@ -102,12 +102,14 @@ export const productsSlice = createSlice({
                 state.error = null;
             })
             .addCase(fetchProducts.fulfilled, (state, action) => { //payload экшена формируется в payload-creator асинхр функции, а сам экшен в функции fetchProducts
-                const { products, total, /* currentUser */ } = action.payload; //(см. fetchProducts) деструктурируем поля из  в action.payload, чтоб постоянно не писать action.payload.currentUser._id
+                const { products, total, currentUser} = action.payload; //(см. fetchProducts) деструктурируем поля из  в action.payload, чтоб постоянно не писать action.payload.currentUser._id
                 state.data = products; //то что приходит по запросу продуктов, массив с товарами                
                 state.defaultSort = state.data.slice();
                 state.total = total;
                 state.totalPages = Math.ceil(state.total / state.productPerPage);
-                //if (currentUser) state.favoriteProducts = products.filter(item => isLiked(item.likes, currentUser._id))
+                if (currentUser) {
+                    state.favoriteProducts = products.filter(item => isLiked(item.likes, currentUser._id))
+                }
 
                 state.loading = false;
             })

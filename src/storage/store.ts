@@ -1,10 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { authApi } from "modules/auth-form/api/authService";
-import { userReducer } from "modules/auth-form/store/userSlice";
+import { userReducer } from "storage/user/userSlice";
 import { productsApi } from "modules/card-list/api/ProductsApi";
 import { productsReducer } from "modules/card-list/store/productsSlice";
 import { productApi } from "modules/product/api/ProductApi";
 import { productReducer } from "modules/product/store/productSlice";
+import { authApi } from "../modules/auth-form/api/authApi";
+import { profileApi } from "modules/profile/api/profileService";
 
 export const store = configureStore({
     reducer: {
@@ -18,7 +19,8 @@ export const store = configureStore({
                 extraArgument: {
                     productsApi,
                     authApi,
-                    productApi
+                    productApi,
+                    profileApi
                 }
             },
         })

@@ -14,7 +14,7 @@ const ProtectedRoute = ({ onlyOnAuth, children }: IProtectedRouteProps) => {
     const isAuthChecked = useAppSelector(state => state.user.isAuthChecked);;
     const location = useLocation();
 
-    //if (!isAuthChecked) return <Spinner />
+    if (!isAuthChecked) return <Spinner />
 
     if (onlyOnAuth && user) {
         const from = location?.state?.from || { pathname: RoutePath.home };
@@ -31,13 +31,3 @@ const ProtectedRoute = ({ onlyOnAuth, children }: IProtectedRouteProps) => {
 }
 
 export default ProtectedRoute;
-
-
-/* простая версия 
-function ProtectedRoute({loggedIn, children}) {
-  return ( 
-    loggedIn === true
-    ? <>{children}</>
-    : <Navigate to={'/login'} />
-   );
-} */

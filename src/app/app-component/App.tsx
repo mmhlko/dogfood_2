@@ -3,7 +3,7 @@ import AppRouter from "pages/AppRouter";
 import { Header } from "modules/header/Header";
 import { useAppDispatch } from "storage/hookTypes";
 import { getToken } from "utils/auth";
-import { fetchCheckToken } from "modules/auth-form/store/userSlice";
+import { fetchCheckToken } from "storage/user/userSlice";
 import { fetchProducts } from "modules/card-list/store/productsSlice";
 
 const App = () => {
