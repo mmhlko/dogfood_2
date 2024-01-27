@@ -1,5 +1,5 @@
 import { TUser } from "modules/auth-form/types/user";
-import { TProduct } from "../modules/card-list/types/products";
+import { TProduct } from "./products";
 
 export type ServerResponse<T> = {
     created_at?: Date,

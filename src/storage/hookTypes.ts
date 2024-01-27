@@ -4,14 +4,16 @@ import { useDispatch } from "react-redux";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { productsApi } from "modules/card-list/api/ProductsApi";
 import { authApi } from "modules/auth-form/api/authService";
+import { productApi } from "modules/product/api/ProductApi";
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 export const useAppDispatch: () => AppDispatch = useDispatch
 
 export const createAppAsyncThunk = createAsyncThunk.withTypes<{
     state: RootState
-    dispatch: AppDispatch    
+    dispatch: AppDispatch
     extra: {
+        authApi: typeof authApi,
         productsApi: typeof productsApi,
-        authApi: typeof authApi
+        productApi: typeof productApi,
     }
-  }>()
+}>()

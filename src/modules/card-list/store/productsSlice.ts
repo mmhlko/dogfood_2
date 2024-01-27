@@ -1,9 +1,8 @@
 import { SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit"
-import { TProductResponseDto, TProductsResponseDto, TUserResponseDto } from "../../../types/api"
 import { TABS_ID } from "../constants/constants"
 import { createAppAsyncThunk } from "storage/hookTypes"
+import { TProductResponseDto } from "types/api"
 import { isLiked } from "utils/products"
-//import { apiProducts } from "../api/ProductsApi"
 
 export type TProductsState = {
     data: TProductResponseDto[],
@@ -43,9 +42,23 @@ export const fetchProducts = createAppAsyncThunk( //& { currentUser: TUserRespon
     `${sliceName}/fetchProducts`,
     async (_, { fulfillWithValue, rejectWithValue, getState, extra: { productsApi } }) => {
         try {
-            //const { user } = await getState();//запрос другого среза через getState
-            const data = (await productsApi.getSpots()).data
-            return fulfillWithValue({ ...data/* , currentUser: user.data */ })
+            const { user } = await getState();//запрос другого среза через getState
+            const data = (await productsApi.getProducts()).data
+            return fulfillWithValue({ ...data, currentUser: user.data })
+        } catch (error) {
+            return rejectWithValue(error) //возвращается при ошибке
+        }
+    }
+)
+
+export const fetchChangeProductLike = createAppAsyncThunk<{ product: TProductResponseDto, liked: boolean }, { likes: string[], _id: string }>(
+    `${sliceName}/fetchChangeLikeProduct`,
+    async (product, { fulfillWithValue, rejectWithValue, getState, extra: { productApi } }) => {
+        try {
+            const { user } = await getState();
+            const liked = user.data ? isLiked(product.likes, user.data._id) : false;
+            const data = (await productApi.changeProductLikeStatus(product._id, liked)).data;
+            return fulfillWithValue({ product: data, liked })
         } catch (error) {
             return rejectWithValue(error) //возвращается при ошибке
         }
@@ -99,6 +112,22 @@ export const productsSlice = createSlice({
                 state.loading = false;
             })
             .addCase(fetchProducts.rejected, (state, action) => {
+                state.error = action.payload;
+                state.loading = false;
+            })
+            //Change Like
+            .addCase(fetchChangeProductLike.fulfilled, (state, action) => { //payload экшена формируется в payload-creator асинхр функции, а сам экшен в функции fetchProducts
+                const { product, liked } = action.payload; //деструктурируем поля в action.payload, чтоб постоянно не писать action.payload.currentUser._id
+                state.data = state.data.map(cardState => { //карточка в стейте cards
+                    return cardState._id === product._id ? product : cardState
+                })
+                // if (!liked) { //если лайка не было, то при нажатии на лайк карточка добвится в массив избранных карточек
+                //     state.favoriteProducts.push(product) //можно пушить напрямую, а в useState нельзя, поэтому ниже добавляется через спред
+                // } else { //если лайк стоял, лайк убирается и возвращается отфильтрованный массив в стейт избранных карточек
+                //     state.favoriteProducts = state.favoriteProducts.filter(card => card._id !== product._id)
+                // }
+            })
+            .addCase(fetchChangeProductLike.rejected, (state, action) => {
                 state.error = action.payload;
                 state.loading = false;
             })

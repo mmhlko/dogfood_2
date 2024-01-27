@@ -6,19 +6,20 @@ import { MouseEvent, useEffect } from 'react';
 import Form from 'components/form/Form';
 import { FormInput } from 'components/form-input/FormInput';
 import FormButton from '../form-button';
-
-
+import { useLocation } from 'react-router-dom';
+import { RoutePath } from 'pages/routeConfig';
 
 interface ILoginFormProps {
-    onSubmit: (dataform: any) => void; 
-    onNavigate: (to:string) => void;
+    onSubmit: (dataform: any) => void;
+    onNavigate: (to: string) => void;
+    isRegister?: boolean
     //onNavigateReset: (to:string) => void;
 }
 
-const LoginForm = ({onSubmit, onNavigate}: ILoginFormProps) => {
 
-    const {register, handleSubmit, formState: {errors}} = useForm<any>({mode: 'onBlur'});
-    
+const AuthForm = ({ onSubmit, onNavigate, isRegister }: ILoginFormProps) => {
+
+    const { register, handleSubmit, formState: { errors }, getValues, reset } = useForm<any>({ mode: 'onBlur' });
 
     const emailRegister = register('email', {
         required: {
@@ -38,14 +39,35 @@ const LoginForm = ({onSubmit, onNavigate}: ILoginFormProps) => {
         },
         pattern: {
             value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-            message: "Пароль должен содержать минимум восемь символов, одну букву латинского алфавита и одну цифру" 
+            message: "Пароль должен содержать минимум восемь символов, одну букву латинского алфавита и одну цифру"
         }
     })
-    
-    return ( 
-        <>
-        <Form title={'Вход'} handleForm={handleSubmit(onSubmit)}>
-            <FormInput 
+    const groupRegister = isRegister && register('group', {
+        required: {
+            value: true,
+            message: "Обязательное поле"
+        },
+        pattern: {
+            value: /^group-[0-9]{1,3}$/,
+            message: "Номер группы в формате group-номер"
+        }
+    })
+
+    const getFormButtonInfo = (isRegister: boolean) => {
+        return {
+            primary: isRegister ? "Зарегистрироваться" : "Войти",
+            secondary: isRegister ? "Войти" : "Зарегистрироваться",
+        }
+    }
+
+    const handleFormNavigateClick = () => {
+        reset()
+        onNavigate(isRegister ? RoutePath.login : RoutePath.register)
+    }
+
+    return (
+        <Form title={isRegister ? "Регистрация" : "Вход"} handleForm={handleSubmit(onSubmit)}>
+            <FormInput
                 {...emailRegister}
                 id='email'
                 type='text'
@@ -53,7 +75,15 @@ const LoginForm = ({onSubmit, onNavigate}: ILoginFormProps) => {
                 autoComplete="none"
                 validationError={errors?.email?.message as string}
             />
-            <FormInput 
+            {isRegister &&
+                <FormInput
+                    {...groupRegister}
+                    id='group'
+                    type='text'
+                    placeholder='Номер группы (group-11)'
+                    validationError={errors?.group?.message as string}
+                />}
+            <FormInput
                 {...passwordRegister}
                 id='password'
                 type='password'
@@ -61,14 +91,11 @@ const LoginForm = ({onSubmit, onNavigate}: ILoginFormProps) => {
                 validationError={errors?.password?.message as string}
             />
             <p onClick={() => onNavigate('/reset-password')} className={classNames('infoText', s.link)}>Восстановить пароль</p>
-            
-            <FormButton type='submit' color='primary' extraClass={s.formButton}>Войти</FormButton>
-            <FormButton onClick={() => onNavigate('/register')} type='button' color='secondary' extraClass={s.formButton}>Зарегистрироваться</FormButton>
+            <FormButton type='submit' color='primary' extraClass={s.formButton}>{getFormButtonInfo(isRegister).primary}</FormButton>
+            <FormButton onClick={handleFormNavigateClick} type='button' color='secondary' extraClass={s.formButton}>{getFormButtonInfo(isRegister).secondary}</FormButton>
         </Form>
 
-        </>
-        
-     );
+    );
 }
 
-export default LoginForm;
+export default AuthForm;

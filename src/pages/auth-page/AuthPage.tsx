@@ -1,22 +1,32 @@
-import { TLoginFormData, authApi } from "modules/auth-form/api/authService";
-import LoginForm from "modules/auth-form/components/login-form/LoginForm";
-import { fetchLoginUser } from "modules/auth-form/store/userSlice";
+import { TLoginFormData, TRegisterFormData, authApi } from "modules/auth-form/api/authService";
+import AuthForm from "modules/auth-form/components/login-form/LoginForm";
+import { fetchLoginUser, fetchRegisterUser } from "modules/auth-form/store/userSlice";
 import { SubmitHandler } from "react-hook-form";
-import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "storage/hookTypes";
 
-export const AuthPage = () => {
+type TAuthPageProps = {
+    isRegister?: boolean
+}
 
-    const location = useLocation();
+export const AuthPage = ({ isRegister }: TAuthPageProps) => {
+
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const cbSubmitFormLogin: SubmitHandler<TLoginFormData> = (formData) => {
+        console.log("cbSubmitFormLogin");        
         dispatch(fetchLoginUser(formData))
+    }
+    const cbSubmitFormRegister: SubmitHandler<TRegisterFormData> = (formData) => {
+        console.log("cbSubmitFormRegister"); 
+        dispatch(fetchRegisterUser(formData))
+    }
+    const handleClickNavigate = (to: string) => {
+        navigate(to)
     }
 
     return (
-        <>
-            <LoginForm onSubmit={cbSubmitFormLogin} onNavigate={() => console.log("onNavigate")} />
-        </>
+        <AuthForm onSubmit={isRegister ? cbSubmitFormRegister : cbSubmitFormLogin} onNavigate={handleClickNavigate} isRegister={isRegister} />
     );
 };

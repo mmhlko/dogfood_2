@@ -1,25 +1,21 @@
 
 import LogoSrc from './assets/logo.svg';
-import { Link } from 'react-router-dom';
-import classNames from 'classnames';
-import { DetailedHTMLProps, HTMLAttributes } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { SyntheticEvent } from 'react';
 
-interface ILogoProps {
-  className?: string, 
-  href?: string,
-  title?: string
-}
+export const Logo = () => {
 
-export function Logo({className, href, ...props}: ILogoProps) {
-  const hrefValue = href ? href : null
-  return (
-    hrefValue 
-      ? <Link /* replace не добавляет в историю хождения на странице */ to={{pathname: hrefValue}} className={classNames('logo', {className: !!className})} {...props}>
-          <LogoSrc />
+    const location = useLocation();
+    const handleClick = (e: SyntheticEvent<HTMLAnchorElement>) => {
+        
+        if (location.pathname === "/") {
+            e.preventDefault();
+        }
+    };
+
+    return (
+        <Link to={"/"} onClick={handleClick}>
+            <LogoSrc />
         </Link>
-      : <span className={`${className} logo`} {...props}>
-          <LogoSrc />
-        </span>  
-
-  );
-}
+    );
+};

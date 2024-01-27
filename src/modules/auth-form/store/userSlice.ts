@@ -3,8 +3,9 @@ import { useDispatch } from 'react-redux';
 import { createAppAsyncThunk } from 'storage/hookTypes';
 import { TUserResponseDto } from 'types/api';
 import { deleteToken, setToken } from 'utils/auth';
-import { getActionName, isActionPending, isActionRejected } from 'utils/redux';
-import { TLoginFormData } from '../api/authService';
+import { getActionName, isPendingAction, isRejectedAction } from 'utils/redux';
+import { TLoginFormData, TRegisterFormData } from '../api/authService';
+import { AxiosError } from 'axios';
 
 // import api from '../../utils/api'; payloadCreator => extra: api
 
@@ -54,17 +55,17 @@ export const sliceName = 'user'
 
 } */
 
-// export const fetchRegisterUser = createAppAsyncThunk<TUserResponseDto, UserRegisterBodyDto>(  //вместо createAsyncThunk
-//     /* arg1 */ `${sliceName}/fetchRegisterUser`,
-//     /* arg2 */ async function payloadCreator(dataUser, {fulfillWithValue,rejectWithValue, extra: api}) {
-//         try {
-//             const data = await api.register(dataUser);
-//             return fulfillWithValue(data) //action.payload = {products: [], total: 0}
-//         } catch (error) {
-//             return rejectWithValue(error) //возвращается при ошибке
-//         }
-//     }
-// )
+export const fetchRegisterUser = createAppAsyncThunk<TUserResponseDto, TRegisterFormData>(  //вместо createAsyncThunk
+    `${sliceName}/fetchRegisterUser`,
+    async (dataUser, {fulfillWithValue,rejectWithValue, extra: { authApi }}) => {
+        try {
+            const data = (await authApi.register(dataUser)).data
+            return fulfillWithValue(data)
+        } catch (error) {
+            return rejectWithValue(error.message)
+        }
+    }
+)
 
 export const fetchLoginUser = createAppAsyncThunk<TUserResponseDto, TLoginFormData>( //вместо createAsyncThunk
     `${sliceName}/fetchLoginUser`,
@@ -83,20 +84,18 @@ export const fetchLoginUser = createAppAsyncThunk<TUserResponseDto, TLoginFormDa
     }
 )
 
-// export const fetchCheckToken = createAppAsyncThunk<TUserResponseDto, string>(
-// //вместо createAsyncThunk, а в качестве дженерика мы указываем то, что должны получить самим запросом, т.е. тип TUserResponseDto
-// //вторым аргументом является тип аргумента ф-и payloadCreator - token
-//     /* arg1 */ `${sliceName}/fetchCheckToken`,
-//     /* arg2 */ async function payloadCreator(token, { fulfillWithValue, rejectWithValue, extra: api, dispatch }) {
-//         try {
-//             const data = await api.checkToken(token);
-//             return fulfillWithValue(data) //action.payload = {products: [], total: 0}
-//         } catch (error) {
-//             return rejectWithValue(error) //возвращается при ошибке
-//         }
-//         finally { dispatch(authCheck()) }
-//     }
-// )
+export const fetchCheckToken = createAppAsyncThunk<TUserResponseDto>(
+    `${sliceName}/fetchCheckToken`,
+    async (_, { fulfillWithValue, rejectWithValue, extra: { authApi }, dispatch }) => {
+        try {
+            const data = (await authApi.checkToken()).data;
+            return fulfillWithValue(data)
+        } catch (error) {
+            return rejectWithValue((error as AxiosError).message)
+        }
+        finally { dispatch(authCheck()) }
+    }
+)
 
 // export const fetchEditUserInfo = createAppAsyncThunk<TUserResponseDto, UserBodyDto>(
 //     `${sliceName}/fetchEditUserInfo`,
@@ -132,10 +131,10 @@ const userSlice = createSlice({
         builder //как в switch-case:
 
             //fetchRegisterUser
-            // .addCase(fetchRegisterUser.fulfilled, (state, action) => { //payload экшена формируется в payload-creator асинхр функции, а сам экшен в функции fetchProducts
-            //     state.data = action.payload; //то что приходит по запросу продуктов, массив с товарами
-            //     state.fetchRegisterUserRequest = false;
-            // })
+            .addCase(fetchRegisterUser.fulfilled, (state, action) => { //payload экшена формируется в payload-creator асинхр функции, а сам экшен в функции fetchProducts
+                state.data = action.payload; //то что приходит по запросу продуктов, массив с товарами
+                state.fetchRegisterUserRequest = false;
+            })
 
             //fetchLoginUser
             .addCase(fetchLoginUser.fulfilled, (state, action) => { //payload экшена формируется в payload-creator асинхр функции, а сам экшен в функции fetchProducts
@@ -144,10 +143,10 @@ const userSlice = createSlice({
             })
 
             // //fetchCheckToken
-            // .addCase(fetchCheckToken.fulfilled, (state, action) => { //payload экшена формируется в payload-creator асинхр функции, а сам экшен в функции fetchProducts
-            //     state.data = action.payload; //то что приходит по запросу продуктов, массив с товарами
-            //     state.fetchCheckTokenRequest = false;
-            // })
+            .addCase(fetchCheckToken.fulfilled, (state, action) => { //payload экшена формируется в payload-creator асинхр функции, а сам экшен в функции fetchProducts
+                state.data = action.payload; //то что приходит по запросу продуктов, массив с товарами
+                state.fetchCheckTokenRequest = false;
+            })
 
             // //fetchEditUserInfo
             // .addCase(fetchEditUserInfo.fulfilled, (state, action) => { //payload экшена формируется в payload-creator асинхр функции, а сам экшен в функции fetchProducts
@@ -157,19 +156,21 @@ const userSlice = createSlice({
 
 
             //add matcher шаблон для редьюсеров, принимает на вход 1. ф-я => boolean, 2. сама функция меняющая стор
-            .addMatcher(isActionPending, (state, action) => {
+            .addMatcher(isPendingAction, (state, action) => {
                 //state[`${getActionName(action.type)}Request`]: true //так было бы без TS, TS ругается, тк в виде строки может придти что угодно, и может такого поля не быть
                 //обход TS
                 state = { ...state, [`${getActionName(action.type)}Request`]: true }
                 state = { ...state, [`${getActionName(action.type)}Error`]: null } //так было бы без TS, TS ругается, тк в виде строки может придти что угодно, и может такого поля не быть
 
             })
-            .addMatcher(isActionRejected, (state, action) => {
+            .addMatcher(isRejectedAction, (state, action) => {
                 //state[`${getActionName(action.type)}Request`]: true //так было бы без TS, TS ругается, тк в виде строки может придти что угодно, и может такого поля не быть
                 //обход TS
                 state = { ...state, [`${getActionName(action.type)}Request`]: false }
-                state = { ...state, [`${getActionName(action.type)}Error`]: "action.payload (error)" } //так было бы без TS, TS ругается, тк в виде строки может придти что угодно, и может такого поля не быть
-
+                console.log('errrrr', action.payload)
+                state = { ...state, [`${getActionName(action.type)}Error`]: action.payload } //так было бы без TS, TS ругается, тк в виде строки может придти что угодно, и может такого поля не быть
+                console.log("state", state);
+                
             })
 
     }

@@ -5,7 +5,7 @@ import { TProductsResponseDto } from "../../../types/api";
 
 export class ProductsService {
 
-    getSpots(): Promise<AxiosResponse<TProductsResponseDto>> {
+    getProducts(): Promise<AxiosResponse<TProductsResponseDto>> {
         return api.get(RoutePath.products)
     }
 

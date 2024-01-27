@@ -30,16 +30,6 @@ class AuthService {
     checkToken(): Promise<AxiosResponse<TUserResponseDto>> {
         return api.get("/users/me")
     }
-    
-
-
-    // static async register(nickname: string, email: string, password: string): Promise<AxiosResponse<TAuthResponse>> {
-    //     return api.post(RoutePath.auth_register, { nickname, email, password });
-    // }
-
-    // static async logout(): Promise<void> {
-    //     return api.post<typeof RoutePath.auth_logout, null, void>(RoutePath.auth_logout);
-    // }
 }
 
 export const authApi = new AuthService();
