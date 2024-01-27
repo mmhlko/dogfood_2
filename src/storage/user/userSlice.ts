@@ -1,7 +1,7 @@
-import { createSlice, isFulfilled, isPending, isRejected, SerializedError } from '@reduxjs/toolkit';
+import { createSlice, isFulfilled, isPending, isRejected } from '@reduxjs/toolkit';
 import { createAppAsyncThunk } from 'storage/hookTypes';
 import { deleteToken, setToken } from 'utils/auth';
-import { getActionName, isPendingAction, isRejectedAction } from 'utils/redux';
+import { getActionName } from 'utils/redux';
 import { TLoginFormData, TRegisterFormData } from 'modules/auth-form/api/authApi';
 import { AxiosError } from 'axios';
 import { TUserBaseInfo, TUserPassword, TUserResponseDto } from 'types/userApi';
@@ -168,6 +168,8 @@ const userSlice = createSlice({
                     }
                 })
     }
+    // Работа со стейтом только либо через мутацию, либо через ...spread !!!
+    // isPending(экшены из данного слайса, иначе добавляются имз других)
 })
 
 export const { authCheck, logout } = userSlice.actions;
