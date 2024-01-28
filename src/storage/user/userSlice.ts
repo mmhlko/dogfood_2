@@ -6,10 +6,12 @@ import { TLoginFormData, TRegisterFormData } from 'modules/auth-form/api/authApi
 import { AxiosError } from 'axios';
 import { TUserBaseInfo, TUserPassword, TUserResponseDto } from 'types/userApi';
 import { TStateError } from 'storage/reduxTypes';
+import { setLocalData } from 'utils/local-storage';
 
 export type TUserState = {
     isAuthChecked: boolean,
     data: TUserResponseDto | null,
+    isAuthorized: boolean,
 
     fetchRegisterUserRequest: boolean,
     fetchRegisterUserError: TStateError,
@@ -31,6 +33,7 @@ export type TUserState = {
 const initialState: TUserState = {
     isAuthChecked: false,
     data: null,
+    isAuthorized: false,
 
     fetchRegisterUserRequest: false,
     fetchRegisterUserError: null,
@@ -81,17 +84,19 @@ export const fetchPasswordReset = createAppAsyncThunk<TUserResponseDto, TUserPas
 
 export const fetchLoginUser = createAppAsyncThunk<TUserResponseDto, TLoginFormData>(
     `${sliceName}/fetchLoginUser`,
-    async (dataUser, { fulfillWithValue, rejectWithValue, extra: { authApi } }) => {
+    async (dataUser, { fulfillWithValue, rejectWithValue, extra: { authApi }, dispatch }) => {
         try {
             const data = (await authApi.login(dataUser)).data
             if (data.token) {
                 setToken(data.token)
-                return fulfillWithValue(data.data) //action.payload = {products: [], total: 0}
+                setLocalData("token", data.token)
+                dispatch(authorize())
+                return fulfillWithValue(data.data)
             } else {
                 return rejectWithValue(data)
             }
         } catch (error) {
-            return rejectWithValue(error) //возвращается при ошибке
+            return rejectWithValue(error)
         }
     }
 )
@@ -135,7 +140,12 @@ const userSlice = createSlice({
         },
         logout: (state) => {
             state.data = null;
+            state.isAuthorized = false
+            setLocalData("token", null)
             deleteToken()
+        },
+        authorize: (state) => {
+            state.isAuthorized = true
         }
     },
     extraReducers: (builder) => {
@@ -172,5 +182,5 @@ const userSlice = createSlice({
     // isPending(экшены из данного слайса, иначе добавляются имз других)
 })
 
-export const { authCheck, logout } = userSlice.actions;
+export const { authCheck, logout, authorize } = userSlice.actions;
 export const userReducer = userSlice.reducer;

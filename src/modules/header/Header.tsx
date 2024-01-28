@@ -31,9 +31,6 @@ export const Header = ({ children }: IHeaderProp) => {
         dispatch(logout())
     }
 
-    console.log(location);
-
-
     return (
         <header className={s.header}>
             <div className={classNames('container', s.header__wrapper)}>

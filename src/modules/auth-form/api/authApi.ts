@@ -3,6 +3,7 @@ import { RoutePath } from "pages/routeConfig";
 import { TUserPassword, TUserResponseDto } from "types/userApi";
 import { api } from "utils/api";
 import { getToken } from "utils/auth";
+import { getLocalData } from "utils/local-storage";
 
 export type TAuthResponse = {
     data: TUserResponseDto;
@@ -29,7 +30,8 @@ class AuthService {
         return api.patch(`/password-reset/${getToken()}`, password)
     }
     checkToken(): Promise<AxiosResponse<TUserResponseDto>> {
-        return api.get("/users/me")
+        console.log('check token', getLocalData("token"));        
+        return api.get("/users/me", {headers: {Authorization: getLocalData("token")}})
     }
 }
 
