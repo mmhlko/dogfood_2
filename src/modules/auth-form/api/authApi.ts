@@ -3,7 +3,6 @@ import { RoutePath } from "pages/routeConfig";
 import { TUserPassword, TUserResponseDto } from "types/userApi";
 import { api } from "utils/api";
 import { getToken } from "utils/auth";
-import { getLocalData } from "utils/local-storage";
 
 export type TAuthResponse = {
     data: TUserResponseDto;
@@ -11,13 +10,14 @@ export type TAuthResponse = {
 }
 
 export type TLoginFormData = {
-    email: string, 
+    email: string,
     password: string
 }
 
 export type TRegisterFormData = {
     group: string
 } & TLoginFormData
+
 
 class AuthService {
     login(formData: TLoginFormData): Promise<AxiosResponse<TAuthResponse>> {
@@ -29,9 +29,8 @@ class AuthService {
     passwordReset(password: TUserPassword) {
         return api.patch(`/password-reset/${getToken()}`, password)
     }
-    checkToken(): Promise<AxiosResponse<TUserResponseDto>> {
-        console.log('check token', getLocalData("token"));        
-        return api.get("/users/me", {headers: {Authorization: getLocalData("token")}})
+    checkToken(token: string): Promise<AxiosResponse<TUserResponseDto>> {
+        return api.get("/users/me", {headers: {Authorization: token}})
     }
 }
 

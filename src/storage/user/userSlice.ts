@@ -1,12 +1,12 @@
 import { createSlice, isFulfilled, isPending, isRejected } from '@reduxjs/toolkit';
 import { createAppAsyncThunk } from 'storage/hookTypes';
-import { deleteToken, setToken } from 'utils/auth';
+import { deleteToken, getToken, setToken } from 'utils/auth';
 import { getActionName } from 'utils/redux';
 import { TLoginFormData, TRegisterFormData } from 'modules/auth-form/api/authApi';
 import { AxiosError } from 'axios';
 import { TUserBaseInfo, TUserPassword, TUserResponseDto } from 'types/userApi';
 import { TStateError } from 'storage/reduxTypes';
-import { setLocalData } from 'utils/local-storage';
+import { checkUserCart } from 'modules/cart/store/cart-slice';
 
 export type TUserState = {
     isAuthChecked: boolean,
@@ -89,8 +89,8 @@ export const fetchLoginUser = createAppAsyncThunk<TUserResponseDto, TLoginFormDa
             const data = (await authApi.login(dataUser)).data
             if (data.token) {
                 setToken(data.token)
-                setLocalData("token", data.token)
                 dispatch(authorize())
+                dispatch(checkUserCart(data.data._id))
                 return fulfillWithValue(data.data)
             } else {
                 return rejectWithValue(data)
@@ -101,13 +101,14 @@ export const fetchLoginUser = createAppAsyncThunk<TUserResponseDto, TLoginFormDa
     }
 )
 
-export const fetchCheckToken = createAppAsyncThunk<TUserResponseDto>(
+export const fetchCheckToken = createAppAsyncThunk<TUserResponseDto, string>(
     `${sliceName}/fetchCheckToken`,
-    async (_, { fulfillWithValue, rejectWithValue, extra: { authApi }, dispatch }) => {
+    async (token, { fulfillWithValue, rejectWithValue, extra: { authApi }, dispatch }) => {
         try {
-            const data = (await authApi.checkToken()).data;
+            const data = (await authApi.checkToken(token)).data;
             return fulfillWithValue(data)
         } catch (error) {
+            deleteToken()
             return rejectWithValue((error as AxiosError).message)
         }
         finally { dispatch(authCheck()) }
@@ -122,7 +123,7 @@ export const fetchEditUserInfo = createAppAsyncThunk<TUserResponseDto, TUserBase
             const avatar = (await profileApi.setUserAvatar(dataUser.avatar)).data.avatar;
             if (data.name) {
                 return fulfillWithValue({ ...data, avatar: avatar })
-            } else {
+            } else {                
                 return rejectWithValue(data)
             }
         } catch (error) {
@@ -141,7 +142,6 @@ const userSlice = createSlice({
         logout: (state) => {
             state.data = null;
             state.isAuthorized = false
-            setLocalData("token", null)
             deleteToken()
         },
         authorize: (state) => {

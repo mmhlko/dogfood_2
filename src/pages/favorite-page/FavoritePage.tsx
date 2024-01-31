@@ -3,20 +3,21 @@ import { CardList } from "modules/card-list/components/CardList"
 import { useAppSelector } from "storage/hookTypes"
 import { Spinner } from "ui/spinner/Spinner"
 
-export const FavoritePage = () => {    
+const FavoritePage = () => {    
 
-    const favorites = useAppSelector(state => state.products.favoriteProducts)
-    const isLoading = useAppSelector(state => state.products.loading)
+    const {favoriteProducts: favorites, loading} = useAppSelector(state => state.products)
+
     return (
         <div className="content container"> 
-            {isLoading
+            {loading
                 ? <Spinner />
                 :  <>
                     <ContentHeader title="Избранное" textButton='Назад'/>
                     <CardList list={favorites}/>
                 </>
-
             }
         </div>
     )
 }
+
+export default FavoritePage;

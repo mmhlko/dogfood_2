@@ -10,7 +10,7 @@ import { TProductResponseDto } from "types/userApi";
 import { NotFound } from "ui/not-found/NotFound";
 import { Spinner } from "ui/spinner/Spinner";
 
-export const ProductPage = () => {
+const ProductPage = () => {
 
     const { productId } = useParams();
     const dispatch = useAppDispatch();
@@ -55,3 +55,5 @@ export const ProductPage = () => {
         </div>
     )
 }
+
+export default ProductPage;

@@ -1,14 +1,17 @@
 import ProtectedRoute from "components/protected-route/ProtectedRoute"
-import { AuthPage } from "./auth-page/AuthPage"
+import AuthPage from "./auth-page/AuthPage"
 import HomePage from "./home-page/HomePage"
 import ProductsPage from "./products-page/ProductsPage"
 import { TRoutes } from "./types"
-import { ProductPage } from "./product-page/ProductPage"
-import { FavoritePage } from "./favorite-page/FavoritePage"
+import ProductPage from "./product-page/ProductPage"
+import FavoritePage from "./favorite-page/FavoritePage"
 import ProfilePage from "./profile-page/ProfilePage"
 import { Route, Routes } from "react-router-dom"
 import { ProfileInfo } from "modules/profile/components/profile-info/ProfileInfo"
 import ProfileForm from "modules/profile/components/profile-form/ProfileForm"
+import CartPage from "./cart-page/CartPage"
+import { AuthForm } from "modules/auth-form"
+import NotFoundPage from "./not-found-page/NotFoundPage"
 
 export const RoutePath = {
     home: "/",
@@ -20,9 +23,9 @@ export const RoutePath = {
     profile: "/profile",
     favorites: "/favorites"
 }
-
 export const baseRoutes: TRoutes[] = [
     { path: RoutePath.home, element: <HomePage /> },
+    { path: "*", element: <NotFoundPage /> },
 ]
 
 export const privateRoutes: TRoutes[] = [
@@ -40,4 +43,10 @@ export const privateRoutes: TRoutes[] = [
             </Route>
         </Routes>
     },
+    { path: RoutePath.cart, element: <ProtectedRoute><CartPage /></ProtectedRoute> },
+]
+
+export const privateModalRoutes: TRoutes[] = [
+    { path: RoutePath.login, element: <AuthForm isModal /> },
+    { path: RoutePath.register, element: <AuthForm isRegister isModal /> },
 ]

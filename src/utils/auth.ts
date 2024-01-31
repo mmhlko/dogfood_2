@@ -3,12 +3,13 @@ import Cookies from "js-cookie"
 const tokenName = "token"
 const userName = "user"
 
-export const setToken = (token: string) => Cookies.set(tokenName, token)
-export const deleteToken = () => Cookies.set(tokenName, '')
+export const setToken = (token: string) => {
+    Cookies.set(tokenName, token)
+}
+export const deleteToken = () => Cookies.remove(tokenName)
 export const getToken = () => {
-    console.log("getToken fn");
-    
-    return Cookies.get(tokenName)
+    console.log("getToken");
+    return Cookies.get(tokenName) || null   
 }
 
 export const getUserLocalStorage = () => JSON.parse(localStorage.getItem(userName))

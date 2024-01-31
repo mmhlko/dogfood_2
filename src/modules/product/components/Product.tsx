@@ -3,7 +3,7 @@ import s from './styles.module.scss';
 import classNames from 'classnames';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isLiked } from 'utils/products';
+import { checkProductInCart, isLiked } from 'utils/products';
 import { ContentHeader } from 'components/content-header/ContentHeader';
 import { Rating } from 'components/rating/Rating';
 import { ProductPrice } from 'components/product-price/ProductPrice';
@@ -12,6 +12,7 @@ import Truck from "../assets/truck.svg"
 import Quality from "../assets/quality.svg"
 import LikeIcon from "../assets/like.svg"
 import ButtonCount from 'components/button-count/ButtonCount';
+import { addProductCart, changeProductQuantityCart, decrementQuantityCart, incrementQuantityCart } from 'modules/cart';
 
 interface IProductProps {
     onProductLike: (data: {likes:string[], _id:string}) => void
@@ -27,8 +28,8 @@ export const Product = ({onProductLike }: IProductProps) => {
     const dispatch = useAppDispatch();
 
     //проверка наличия товара в корзине
-    //const cartProducts = useAppSelector(state => state.cart.data);  //корзина
-    //const productInCartInfo = checkProductInCart(cartProducts, _id as string) ;  //проверяемый товар + проверка на сущ. _id
+    const cartProducts = useAppSelector(state => state.cart.data);  //корзина
+    const productInCartInfo = checkProductInCart(cartProducts, _id as string) ;  //проверяемый товар + проверка на сущ. _id
 
     const handleLikeClick = () => {
         onProductLike({likes, _id: _id})        
@@ -37,10 +38,8 @@ export const Product = ({onProductLike }: IProductProps) => {
         return { __html: description };
     }
     const handleCartClick = () => {
-        //dispatch(addProductCart(addDataCart))
+        dispatch(addProductCart(addDataCart))
     }
-
-
 
     return (
         <>
@@ -58,13 +57,13 @@ export const Product = ({onProductLike }: IProductProps) => {
                     <div className={s.btnWrap}>
                         <div className={s.left}>
                             <ButtonCount
-                                amount={/* productInCartInfo.quantity */5}
-                                handleIncrement={() => { /* dispatch(incrementQuantityCart(addDataCart)) */ }}
-                                handleDecrement={() => { /* dispatch(decrementQuantityCart(addDataCart)) */ }}
-                                handleCountChange={(newQuantity) => { /* dispatch(changeProductQuantityCart({ ...addDataCart, quantity: newQuantity }))  */ }}
+                                amount={productInCartInfo.quantity}
+                                handleIncrement={() => { dispatch(incrementQuantityCart(addDataCart)) }}
+                                handleDecrement={() => { dispatch(decrementQuantityCart(addDataCart)) }}
+                                handleCountChange={(newQuantity) => { dispatch(changeProductQuantityCart({ ...addDataCart, quantity: newQuantity })) }}
                             />
                         </div>
-                        {/* <Button action={handleCartClick} href='#' variant='primary'>{!productInCartInfo.quantity && productInCartInfo.quantity === 0 ? 'В корзину' : 'Добавлено'}</Button> */}
+                        <Button action={handleCartClick} href='#' variant='primary'>{!productInCartInfo.quantity && productInCartInfo.quantity === 0 ? 'В корзину' : 'Добавлено'}</Button>
                     </div>
                     <button className={classNames(s.favorite, { [s.favoriteActive]: like })} onClick={handleLikeClick}>
                         <LikeIcon />

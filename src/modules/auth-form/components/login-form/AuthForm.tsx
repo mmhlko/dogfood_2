@@ -1,23 +1,47 @@
 
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import s from './styles.module.scss'
 import classNames from 'classnames';
 import Form from 'components/form/Form';
 import { FormInput } from 'components/form-input/FormInput';
 import FormButton from '../form-button';
 import { RoutePath } from 'pages/routeConfig';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppDispatch } from 'storage/hookTypes';
+import { TLoginFormData, TRegisterFormData } from 'modules/auth-form/api/authApi';
+import { fetchLoginUser, fetchRegisterUser } from 'storage/user/userSlice';
+import { authText } from 'modules/auth-form/constants/constants';
 
 interface ILoginFormProps {
-    onSubmit: (dataform: any) => void;
-    onNavigate: (to: string) => void;
     isRegister?: boolean
+    isModal?: boolean
     //onNavigateReset: (to:string) => void;
 }
 
 
-const AuthForm = ({ onSubmit, onNavigate, isRegister }: ILoginFormProps) => {
+export const AuthForm = ({ isRegister, isModal }: ILoginFormProps) => {
 
-    const { register, handleSubmit, formState: { errors }, getValues, reset } = useForm<any>({ mode: 'onBlur' });
+    const { register, handleSubmit, formState: { errors }, reset } = useForm({ mode: 'onBlur' });
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const initialPath = location.state?.initialPath;    
+
+    const cbSubmitFormLogin: SubmitHandler<TLoginFormData> = (formData) => {
+        console.log("cbSubmitFormLogin");        
+        dispatch(fetchLoginUser(formData))
+    }
+    const cbSubmitFormRegister: SubmitHandler<TRegisterFormData> = (formData) => {
+        console.log("cbSubmitFormRegister"); 
+        dispatch(fetchRegisterUser(formData))
+    }
+    const onNavigate = (to: string) => {
+        isModal
+            ? navigate(to)
+            : navigate(to, { replace: true, state: { backgroundLocation: { ...location, state: null }, initialPath } })       
+    }
+
+    const onSubmit = isRegister ? cbSubmitFormRegister : cbSubmitFormLogin
 
     const emailRegister = register('email', {
         required: {
@@ -35,10 +59,10 @@ const AuthForm = ({ onSubmit, onNavigate, isRegister }: ILoginFormProps) => {
             value: true,
             message: "Обязательное поле"
         },
-        /* pattern: {
+        pattern: {
             value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
             message: "Пароль должен содержать минимум восемь символов, одну букву латинского алфавита и одну цифру"
-        } */
+        }
     })
     const groupRegister = isRegister && register('group', {
         required: {
@@ -53,8 +77,8 @@ const AuthForm = ({ onSubmit, onNavigate, isRegister }: ILoginFormProps) => {
 
     const getFormButtonInfo = (isRegister: boolean) => {
         return {
-            primary: isRegister ? "Зарегистрироваться" : "Войти",
-            secondary: isRegister ? "Войти" : "Зарегистрироваться",
+            primary: isRegister ? authText.toRegister : authText.toLogin,
+            secondary: isRegister ? authText.toLogin : authText.toRegister,
         }
     }
 
@@ -64,7 +88,7 @@ const AuthForm = ({ onSubmit, onNavigate, isRegister }: ILoginFormProps) => {
     }
 
     return (
-        <Form title={isRegister ? "Регистрация" : "Вход"} handleForm={handleSubmit(onSubmit)}>
+        <Form title={isRegister ? authText.register : authText.login } handleForm={handleSubmit(onSubmit)}>
             <FormInput
                 {...emailRegister}
                 id='email'
@@ -95,5 +119,3 @@ const AuthForm = ({ onSubmit, onNavigate, isRegister }: ILoginFormProps) => {
 
     );
 }
-
-export default AuthForm;

@@ -31,21 +31,21 @@ main {
   background-color: var(--background-white);
 }
 
-header,
-footer {
-  width: 100%;
-  z-index: 10;
-  position: sticky;
-}
+// header,
+// footer {
+//   width: 100%;
+//   z-index: 10;
+//   position: sticky;
+// }
 
-header {
-  top: 0;
-}
+// header {
+//   top: 0;
+// }
 
-footer {
-  bottom: 0;
-  height: 60px;
-}
+// footer {
+//   bottom: 0;
+//   height: 60px;
+// }
 
 h1,
 h2,

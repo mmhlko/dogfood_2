@@ -1,26 +1,24 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect } from "react";
 import AppRouter from "pages/AppRouter";
 import { Header } from "modules/header/Header";
-import { useAppDispatch } from "storage/hookTypes";
+import { useAppDispatch, useAppSelector } from "storage/hookTypes";
 import { fetchCheckToken } from "storage/user/userSlice";
 import { fetchProducts } from "modules/card-list/store/productsSlice";
-import { getLocalData } from "utils/local-storage";
 import { getToken } from "utils/auth";
+import { Footer } from "modules/footer/components/Footer";
 
 const App = () => {
 
     const dispatch = useAppDispatch();
     const token = getToken();
+    const isAuthorized = useAppSelector(state => state.user.isAuthorized)
 
-    console.log("getToken", getToken());
-    
-    
-    useEffect(() => {       
-        dispatch(fetchCheckToken())
+    useEffect(() => {
+        dispatch(fetchCheckToken(token)) //проверка пользователя по токену
             .then(() => {
-                token && dispatch(fetchProducts())
-            })        
-    }, [dispatch, token])
+                token && dispatch(fetchProducts()) //проверка на наличие актуального токена
+            })
+    }, [token, isAuthorized])
 
     return (
         <>
@@ -28,7 +26,8 @@ const App = () => {
             <main >
                 <AppRouter />
             </main>
-            {/* <Footer /> */}
+            <Footer />
+            <AppRouter modal />
         </>
     )
 }
