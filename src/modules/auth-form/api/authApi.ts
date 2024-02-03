@@ -1,6 +1,7 @@
 import { AxiosResponse } from "axios";
 import { RoutePath } from "pages/routeConfig";
-import { TUserPassword, TUserResponseDto } from "types/userApi";
+import { TUserResponseDto } from "types/typesApi";
+import { TUserPassword } from "types/user";
 import { api } from "utils/api";
 import { getToken } from "utils/auth";
 

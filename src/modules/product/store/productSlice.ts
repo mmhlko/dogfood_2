@@ -1,6 +1,7 @@
 import { SerializedError, createSlice } from "@reduxjs/toolkit"
 import { createAppAsyncThunk } from "storage/hookTypes"
-import { TProductResponseDto } from "types/userApi"
+import { UserReviewBodyDto } from "types/products"
+import { TProductResponseDto } from "types/typesApi"
 import { isLiked } from "utils/products"
 
 type TProductState = {
@@ -19,9 +20,9 @@ export const sliceName = 'product-item'
 
 export const fetchProductItem = createAppAsyncThunk<TProductResponseDto, string>(
     `${sliceName}/fetchProductItem`,
-    async (productId, { fulfillWithValue, rejectWithValue, extra: api }) => {
+    async (productId, { fulfillWithValue, rejectWithValue, extra: {productApi} }) => {
         try {
-            const data = (await api.productApi.getProductItem(productId)).data
+            const data = (await productApi.getProductItem(productId)).data
             return fulfillWithValue(data)
         } catch (error) {
             return rejectWithValue(error.message)
@@ -29,19 +30,17 @@ export const fetchProductItem = createAppAsyncThunk<TProductResponseDto, string>
     }
 )
 
-// export const fetchCreateReview = createAppAsyncThunk<TProductResponseDto, {productId: string, data: UserReviewBodyDto}>( 
-//     //асинхронный action, принимает имя асинх.экшена, а вторым - асинх. функция payload-creator которая генерирует payload
-//     //ее задача вернуть payload, который будет использоваться в экшене редьюсера
-//    /* arg1 */ `${sliceName}/fetchCreateReview`,
-//    /* arg2 */ async function payloadCreator({productId, data: body}, {fulfillWithValue,rejectWithValue, extra: api}) {
-//         try {
-//             const data = await api.createReviewProduct(productId, body);
-//             return fulfillWithValue(data) //action.payload = {products: [], total: 0}
-//         } catch (error) {
-//             return rejectWithValue(error) //возвращается при ошибке
-//         }
-//     }
-// )
+export const fetchCreateReview = createAppAsyncThunk<TProductResponseDto, {productId: string, data: UserReviewBodyDto}>( 
+   `${sliceName}/fetchCreateReview`,
+   async ({productId, data: body}, {fulfillWithValue,rejectWithValue, extra: {productApi}}) => {
+        try {
+            const data = (await productApi.createProductReview(productId, body)).data;
+            return fulfillWithValue(data)
+        } catch (error) {
+            return rejectWithValue(error)
+        }
+    }
+)
 
 const productSlice = createSlice({
     name: sliceName,
@@ -68,13 +67,13 @@ const productSlice = createSlice({
                 state.loading = false;
             })
         //Create review
-        // .addCase(fetchCreateReview.fulfilled, (state, action) => { //payload экшена формируется в payload-creator асинхр функции, а сам экшен в функции fetchProducts
-        //     state.data = action.payload;
-        // })
-        // .addCase(fetchCreateReview.rejected, (state, action) => {
-        //     state.error = action.payload;
+        .addCase(fetchCreateReview.fulfilled, (state, action) => { //payload экшена формируется в payload-creator асинхр функции, а сам экшен в функции fetchProducts
+            state.data = action.payload;
+        })
+        .addCase(fetchCreateReview.rejected, (state, action) => {
+            state.error = action.payload;
 
-        // })
+        })
 
     }
 })

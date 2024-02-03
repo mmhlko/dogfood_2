@@ -3,7 +3,7 @@ import { Card } from "./card/Card"
 import { Paginate } from "./paginate/Paginate";
 import s from './styles.module.scss';
 import { useAppDispatch, useAppSelector } from "storage/hookTypes";
-import { TProductResponseDto } from "types/userApi";
+import { TProductResponseDto } from "types/typesApi";
 import { MAX_PRODUCT_PER_PAGE } from "../constants/constants";
 import { memo } from "react";
 import { getPaginateData } from "../helpers/getPaginateData";

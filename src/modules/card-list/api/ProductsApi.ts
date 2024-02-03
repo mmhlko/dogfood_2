@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { RoutePath } from "pages/routeConfig";
 import { api } from "utils/api";
-import { TProductsResponseDto } from "../../../types/userApi";
+import { TProductsResponseDto } from "../../../types/typesApi";
 
 export class ProductsService {
 

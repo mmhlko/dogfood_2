@@ -1,5 +1,5 @@
 import { TUser } from "modules/auth-form/types/user";
-import { TProduct } from "./products";
+import { TProduct, TReview } from "./products";
 
 export type ServerResponse<T> = {
     created_at?: Date,
@@ -9,18 +9,9 @@ export type ServerResponse<T> = {
 
 export type TProductResponseDto = ServerResponse<TProduct>
 export type TUserResponseDto = ServerResponse<TUser>
+export type TReviewResponseDto = ServerResponse<TReview>
 
 export type TProductsResponseDto = {
     products: TProductResponseDto[];
     total: number;
-}
-
-export type TUserBaseInfo = {
-    name: string,
-    about: string,
-    avatar?: string,
-    email?:string
-}
-export type TUserPassword = {
-    password: string
 }

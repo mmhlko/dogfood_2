@@ -4,9 +4,10 @@ import { deleteToken, getToken, setToken } from 'utils/auth';
 import { getActionName } from 'utils/redux';
 import { TLoginFormData, TRegisterFormData } from 'modules/auth-form/api/authApi';
 import { AxiosError } from 'axios';
-import { TUserBaseInfo, TUserPassword, TUserResponseDto } from 'types/userApi';
+import { TUserResponseDto } from 'types/typesApi';
 import { TStateError } from 'storage/reduxTypes';
 import { checkUserCart } from 'modules/cart/store/cart-slice';
+import { TUserBaseInfo, TUserPassword } from 'types/user';
 
 export type TUserState = {
     isAuthChecked: boolean,

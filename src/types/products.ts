@@ -36,3 +36,9 @@ export type TProductInCart = {
     quantity: number;
     isGift?: boolean;
 }
+
+export  type UserReviewBodyDto = {
+    rating: number,
+    text: string,
+    city?: string
+}

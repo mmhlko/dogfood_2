@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
-import { TUserBaseInfo, TUserResponseDto } from "types/userApi";
+import { TUserResponseDto } from "types/typesApi";
+import { TUserBaseInfo } from "types/user";
 import { api } from "utils/api";
 
 export type TAuthResponse = {

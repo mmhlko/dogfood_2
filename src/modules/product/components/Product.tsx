@@ -13,6 +13,8 @@ import Quality from "../assets/quality.svg"
 import LikeIcon from "../assets/like.svg"
 import ButtonCount from 'components/button-count/ButtonCount';
 import { addProductCart, changeProductQuantityCart, decrementQuantityCart, incrementQuantityCart } from 'modules/cart';
+import { Review } from './review/Review';
+import FormReview from './form-review/FormReview';
 
 interface IProductProps {
     onProductLike: (data: {likes:string[], _id:string}) => void
@@ -124,11 +126,11 @@ export const Product = ({onProductLike }: IProductProps) => {
                     </div>
                 </div>
             </div>
+            <FormReview title={`Отзыв о товаре ${name}`} productId={_id}/>
+            {reviews?.length !== 0 && reviews?.map((reviewData, index) => <Review key={index} {...reviewData}/>).reverse()}
 
-            {reviews?.length !== 0 && reviews?.map((reviewData, index) => <span key={index}>Отзыв {index}</span> /* <Review key={index} {...reviewData}/> */)}
-
-            Отзыв о товаре
-            {/* <FormReview title={`Отзыв о товаре ${name}`} productId={_id}/> */}
+            
+            
         </>
     );
 }

@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Action } from "redux";
 import { useAppDispatch, useAppSelector } from "storage/hookTypes";
-import { TProductResponseDto } from "types/userApi";
+import { TProductResponseDto } from "types/typesApi";
 import { NotFound } from "ui/not-found/NotFound";
 import { Spinner } from "ui/spinner/Spinner";
 

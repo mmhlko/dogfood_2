@@ -10,6 +10,10 @@
     background-position: top right;
     background-size: contain;
     background-repeat: no-repeat;
+    cursor: default;
+    &_href {
+        cursor: pointer;
+    }
 }
 
 .title {

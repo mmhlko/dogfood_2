@@ -12,8 +12,20 @@ import ContentLoader from "react-content-loader"
 import { addProductCart } from 'modules/cart';
 import { RoutePath } from 'pages/routeConfig';
 import { CardPreloader } from '../card-preloader/CardPreloader';
+import { TProductResponseDto } from 'types/typesApi';
 
-export const Card = ({ name, price, discount, wight, pictures, tags, likes, _id }: any) => {
+interface ICardProps {
+    discount?: number,
+    pictures?: string,
+    likes?: string[],
+    tags?: string[],
+    _id?: string,
+    name?: string,
+    price?: number,
+    wight?: string,
+}
+
+export const Card = ({ name, price, discount, wight, pictures, tags, likes, _id }: ICardProps) => {
     const dispatch = useAppDispatch();
     const addDataCart = { _id, name, pictures, discount, price, wight }
     const currentUser = useAppSelector(state => state.user.data)

@@ -1,7 +1,7 @@
 import { SerializedError, createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { END_RANGE_PAGE, MAX_PRODUCT_PER_PAGE, START_RANGE_PAGE, TABS_ID } from "../constants/constants"
 import { createAppAsyncThunk } from "storage/hookTypes"
-import { TProductResponseDto } from "types/userApi"
+import { TProductResponseDto } from "types/typesApi"
 import { isLiked } from "utils/products"
 import { logout } from "storage/user/userSlice"
 

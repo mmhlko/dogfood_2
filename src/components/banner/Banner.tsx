@@ -16,20 +16,23 @@ interface IBannerProps {
     bg?: string;
     colorBg: string;
     extraClass?: string;
-    price?: string
+    price?: string;
+    href?: string
 }
 
-function Banner({title, subtitle, bg, colorBg, size, price, extraClass}: IBannerProps) {
-    return ( 
-        <div className={classNames(s.banner, 
-        {[s[extraClass as string]]: !!extraClass, [s[size]]: `${size}`})} 
-        style={{backgroundColor: colorBg, backgroundImage: `url('${bg}')`}}>
-            <h2 className={s.title}>{title}</h2>
-            {subtitle  && <p className={s.subtitle}>{subtitle}</p>}
-            {price && <p className={s.price}>{price}</p>}
-        </div>
-     );
+export const Banner = ({ title, subtitle, bg, colorBg, size, price, extraClass, href = null}: IBannerProps) => {
+    return (
+            <Link to={href}
+                className={classNames(s.banner,
+                {
+                    [s[extraClass]]: !!extraClass, 
+                    [s[size]]: `${size}`,
+                    [s.banner_href]: href,
+                })}
+                style={{ backgroundColor: colorBg, backgroundImage: `url('${bg}')` }}>
+                <h2 className={s.title}>{title}</h2>
+                {subtitle && <p className={s.subtitle}>{subtitle}</p>}
+                {price && <p className={s.price}>{price}</p>}
+            </Link>
+    );
 }
-
-export default Banner;
-

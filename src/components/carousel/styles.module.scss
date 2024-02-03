@@ -27,12 +27,20 @@
     justify-content: center;
     box-sizing: content-box;
     padding: 0;
+    cursor: pointer;
 }
 
 .button:disabled {
-    background-color: #eff0f0;
+    opacity: 0.5;
+    cursor: default
 }
 
 .button:focus {
     background-color: #b9bdbe;
+}
+
+.swiperSlide {
+    height: auto;
+    display: flex;
+    flex-direction: column;
 }
