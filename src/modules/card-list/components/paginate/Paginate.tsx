@@ -2,22 +2,35 @@ import { Button, ButtonVariant } from "ui/button/Button";
 import s from "./styles.module.scss";
 import classNames from "classnames";
 import ArrowIcon from "./img/arrow.svg"
+import { useEffect } from "react";
 
 interface IPaginateProps {
+    onChangePage: (numberPage: number) => void,
     onClickPrev: () => void,
     onClickNext: () => void,
     onClickPage: (numberPage: number) => void,
     pages: number[],
     currentPage: number,
-    firstPage: number,
-    lastPage: number
+    rangeFirstPage: number,
+    rangeLastPage: number
 }
-export const Paginate = ({ onClickNext, onClickPrev, pages, currentPage, onClickPage, firstPage, lastPage }: IPaginateProps) => {
+export const Paginate = ({ onClickNext, onClickPrev, pages, currentPage, onClickPage, rangeFirstPage, rangeLastPage, onChangePage}: IPaginateProps) => {
 
     const handleClickPage = (e: React.MouseEvent<HTMLAnchorElement>, page: number) => {
         e.preventDefault()
         onClickPage(page);
     }
+
+    console.log({
+        rangeFirstPage: rangeFirstPage,
+        rangeLastPage: rangeLastPage ,
+        currentPage: currentPage,
+        pages: pages
+    });
+    
+    useEffect(() => {
+        onChangePage(currentPage)
+    }, [currentPage])
     
     return (
         <div className={s.paginate}>
@@ -31,7 +44,7 @@ export const Paginate = ({ onClickNext, onClickPrev, pages, currentPage, onClick
                     <a className={s.pageLink} href={`/catalog?page=${page}`} onClick={(e) => handleClickPage(e, page)}>{page}</a>
                 </li>
             ))}
-            {pages?.slice(firstPage - 1, lastPage).map(page => (
+            {pages?.slice(rangeFirstPage - 1, rangeLastPage).map(page => (
                 <li className={classNames(s.paginateItem, {[s.activeItem]: currentPage === page})}>
                     <a className={s.pageLink} href={`/catalog?page=${page}`} onClick={(e) => handleClickPage(e, page)}>{page}</a>
                 </li>

@@ -1,4 +1,4 @@
-import { onClickCurrentPage, onPaginateNext, onPaginatePrev } from "../store/productsSlice";
+import { onChangeCurrentPage, onClickCurrentPage, onPaginateNext, onPaginatePrev } from "../store/productsSlice";
 import { Card } from "./card/Card"
 import { Paginate } from "./paginate/Paginate";
 import s from './styles.module.scss';
@@ -28,7 +28,11 @@ export const CardList = memo(({ list }: ICardListProps) => {
     }
     const onClickPage = (page: number) => {
         dispatch(onClickCurrentPage(page));
-    }    
+    }
+
+    const onChangePage = (page: number) => {
+        dispatch(onChangeCurrentPage(page))
+    }
 
     return (
         <>
@@ -45,8 +49,9 @@ export const CardList = memo(({ list }: ICardListProps) => {
                     onClickPrev={onClickPrev}
                     onClickPage={onClickPage}
                     currentPage={currentPage}
-                    firstPage={currentStartPage}
-                    lastPage={currentEndPage}
+                    rangeFirstPage={currentStartPage}
+                    rangeLastPage={currentEndPage}
+                    onChangePage={onChangePage}
                 />
             )}
         </>
