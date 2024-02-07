@@ -2,6 +2,7 @@ import './styles.scss';
 import classNames from 'classnames';
 import LikeIcon from "./images/like.svg";
 import TrashIcon from "./images/trash.svg";
+import default_image from "./images/default_image.jpg"
 import { Link, useLocation } from 'react-router-dom';
 import { SyntheticEvent } from 'react';
 import { ProductPrice } from 'components/product-price/ProductPrice';
@@ -41,6 +42,11 @@ export const Card = ({ name, price, discount, wight, pictures, tags, likes, _id 
         dispatch(addProductCart(addDataCart))
     }
 
+    const handleImageError = (e: SyntheticEvent<HTMLImageElement, Event>) => {
+        e.currentTarget.src = default_image;
+        e.currentTarget.onerror = null
+    }
+
     const tagsRender = (tagName: string) => (
         <span key={tagName} className={classNames('tag', { [`tag_type_${tagName}`]: tagName })}>
             {tagName}
@@ -70,7 +76,7 @@ export const Card = ({ name, price, discount, wight, pictures, tags, likes, _id 
                             </button>
                         </div>
                         <Link to={`/product/${_id}`} className="card__link">
-                            <img src={pictures} alt={name} className="card__image" />
+                            <img src={pictures} alt={name} className="card__image" onError={handleImageError}/>
                             <div className="card__desc">
                                 <ProductPrice price={price} discount={discount} type='small' />
                                 <span className="card__weight">{wight}</span>

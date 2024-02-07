@@ -13,7 +13,7 @@ import { changeLikeState } from "modules/product/store/productSlice"
 
 const initialState: TProductsState = {
     data: [],
-    currentSort: '',
+    currentSort: TABS_ID.DEFAULT,
     defaultSort: null,
     favoriteProducts: [],
     total: null,
@@ -64,9 +64,11 @@ export const fetchChangeProductLike = createAppAsyncThunk<{ product: TProductRes
             const { user } = await getState();
             const liked = user.data ? isLiked(product.likes, user.data._id) : false;
             const data = (await productApi.changeProductLikeStatus(product._id, liked)).data; //получение обновленной карточки
-            data && dispatch(changeLikeState(data))
+            data && dispatch(changeLikeState(data)) //смена лайка
             return fulfillWithValue({ product: data, liked })
-        } catch (error) {            
+        } catch (error) {
+            console.log(error);
+                 
             return rejectWithValue(payloadCreatorError(error))
         }
     }

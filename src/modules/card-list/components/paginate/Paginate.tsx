@@ -27,6 +27,13 @@ export const Paginate = ({ onClickNext, onClickPrev, pages, currentPage, onClick
         </li>
     )
 
+    const setPaginationList = (pages: number[]) => {
+        const firstPage = pages?.slice(0, 1)[0]
+        const middlePagesList = pages?.slice(rangeFirstPage - 1, rangeLastPage)
+        const lastPage = pages?.slice(pages.length - 1)[0]
+        return [firstPage, ...middlePagesList, lastPage ]
+    }
+
     useEffect(() => {
         onChangePage(currentPage)
     }, [currentPage])
@@ -38,9 +45,7 @@ export const Paginate = ({ onClickNext, onClickPrev, pages, currentPage, onClick
                 Назад
             </Button>
             <ul className={s.paginationList}>
-                {pages?.slice(0, 1).map(renderPaginationButton)}
-                {pages?.slice(rangeFirstPage - 1, rangeLastPage).map(renderPaginationButton)}
-                {pages?.slice(pages.length - 1).map(renderPaginationButton)}
+                {setPaginationList(pages)?.map(renderPaginationButton)}
             </ul>
             <Button variant={ButtonVariant.border} action={onClickNext} disabled={currentPage === pages?.length}>
                 Вперед
