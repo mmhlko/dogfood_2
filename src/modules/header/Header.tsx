@@ -11,22 +11,54 @@ import { Logo } from 'components/logo/Logo';
 import { useAppDispatch, useAppSelector } from 'storage/hookTypes';
 import { logout } from 'storage/user/userSlice';
 import { RoutePath } from 'pages/routeConfig';
+import { Search } from './components/search/Search';
+import { SyntheticEvent, useEffect, useRef, useState } from 'react';
+import { useDebounce } from 'hooks/useDebounce';
+import { fetchSearchProducts, setSearchQuery } from 'modules/card-list/store/productsSlice';
 
 export const Header = () => {
 
     const location = useLocation();
     const dispatch = useAppDispatch();
-    const favorites = useAppSelector(state => state.products.favoriteProducts) || { length: 0 }//стало
+    const [searchValue, setSearchValue] = useState(''); //стейт для строки поиска
+    const favorites = useAppSelector(state => state.products.favoriteProducts) || { length: 0 }
     const currentUser = useAppSelector(state => state.user.data)
     const cartCount = useAppSelector(state => state.cart.totalCountProducts)
     const handleClickLogout = () => {
         dispatch(logout())
     }
-    
+    const debounceSearchQuery = useDebounce(searchValue, 300)
+    const firstRender = useRef(true);
+
+    const handleSearchRequest = () => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
+        dispatch(fetchSearchProducts(debounceSearchQuery))
+    }
+
+    const handleInputChange = (value: string) => {
+        setSearchValue(value)
+    }
+
+    const handleInputClear = (e: SyntheticEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        setSearchValue("")
+        dispatch(setSearchQuery(""))
+    }
+
+    useEffect(() => {
+        handleSearchRequest()
+    }, [debounceSearchQuery])
+
     return (
         <header className={s.header}>
             <div className={classNames('container', s.header__wrapper)}>
                 <Logo />
+                {location.pathname === RoutePath.products &&
+                    <Search handleInputChange={handleInputChange} handleInputClear={handleInputClear} value={searchValue} />
+                }
                 <div className={s.iconsMenu}>
                     <Link to={RoutePath.favorites} className={s.favoritesLink}>
                         <FavoritesIcon />
@@ -37,8 +69,7 @@ export const Header = () => {
                         {cartCount > 0 && <span className={s.iconBubble}>{cartCount}</span>}
                     </Link>
                     {currentUser
-                        ?
-                        <>
+                        ? <>
                             <Link to={RoutePath.profile} className={s.iconsMenuItem}>
                                 <ProfileIcon />
                                 {currentUser?.name}

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
-import { TProductInCart } from 'types/products';
+import { TProduct, TProductInCart } from 'types/products';
 
 export interface IcheckProductInCart {
     quantity: number, 
@@ -22,10 +22,10 @@ export const calcDiscountPrice = (price:number, discount:number) => Math.round(p
 
 export const checkProductInCart = (cartProducts: ICartProduct[], productID: string):IcheckProductInCart => {
     const productInCart = cartProducts.find(cartProduct => cartProduct._id === productID)
+    return productInCart?.quantity ? {quantity: productInCart.quantity, exist: true} : {quantity: 0, exist: false}
+}
 
-    if (productInCart?.quantity) {
-        return {quantity: productInCart.quantity, exist: true}
-    } else {
-        return {quantity: 0, exist: false}
-    }
+export const getProductCartData = (productData: TProduct) => {
+    const { _id, name, pictures, discount, price, wight, /* quantity */ } = productData
+    return { _id, name, pictures, discount, price, wight }
 }

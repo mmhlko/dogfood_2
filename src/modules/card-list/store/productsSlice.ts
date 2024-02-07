@@ -1,36 +1,31 @@
-import { SerializedError, createSlice } from "@reduxjs/toolkit"
-import { END_RANGE_PAGE, MAX_PRODUCT_PER_PAGE, START_RANGE_PAGE, TABS_ID } from "../constants/constants"
+import { createSlice } from "@reduxjs/toolkit"
+import { END_RANGE_PAGE, START_RANGE_PAGE, TABS_ID } from "../constants/constants"
 import { createAppAsyncThunk } from "storage/hookTypes"
 import { TProductResponseDto } from "types/typesApi"
 import { isLiked } from "utils/products"
 import { logout } from "storage/user/userSlice"
-
-type TProductsState = {
-    data: TProductResponseDto[],
-    currentSort: string,
-    defaultSort: any,
-    favoriteProducts: TProductResponseDto[],
-    total: number,
-    loading: boolean,
-    error: SerializedError,
-    currentPage: number,
-    totalPages: number
-    currentStartPage: number,
-    currentEndPage: number,
-}
+import { TProductsState } from "../types/store"
+import { TStoreAction } from "storage/reduxTypes"
+import { payloadCreatorError } from "storage/helpers"
+import { TProduct } from "types/products"
+import { getTotalPages } from "../helpers/getPaginateData"
 
 const initialState: TProductsState = {
     data: [],
     currentSort: '',
     defaultSort: null,
     favoriteProducts: [],
-    total: 0,
+    total: null,
     loading: false,
     error: null,
     currentPage: 1,
     totalPages: 1,
     currentStartPage: START_RANGE_PAGE,
     currentEndPage: END_RANGE_PAGE,
+    searchQuery: "",
+    isSearchFulfilled: false,
+    fetchSearchProductsLoading: false,
+    fetchSearchProductsError: null
 }
 
 const sliceName = "products";
@@ -43,7 +38,20 @@ export const fetchProducts = createAppAsyncThunk(
             const data = (await productsApi.getProducts()).data
             return fulfillWithValue({ ...data, currentUser: user.data })
         } catch (error) {
-            return rejectWithValue(error)
+            return rejectWithValue(payloadCreatorError(error))
+        }
+    }
+)
+
+export const fetchSearchProducts = createAppAsyncThunk<TProduct[], string>(
+    `${sliceName}/fetchSearchProducts`,
+    async (searchQuery, { fulfillWithValue, rejectWithValue, dispatch, extra: { productsApi } }) => {
+        try {            
+            const data = (await productsApi.fetchSearchRequest(searchQuery)).data
+            dispatch(setSearchQuery(searchQuery))
+            return fulfillWithValue(data)
+        } catch (error) {
+            return rejectWithValue(payloadCreatorError(error))
         }
     }
 )
@@ -57,7 +65,7 @@ export const fetchChangeProductLike = createAppAsyncThunk<{ product: TProductRes
             const data = (await productApi.changeProductLikeStatus(product._id, liked)).data;
             return fulfillWithValue({ product: data, liked })
         } catch (error) {
-            return rejectWithValue(error)
+            return rejectWithValue(payloadCreatorError(error))
         }
     }
 )
@@ -66,7 +74,7 @@ export const productsSlice = createSlice({
     name: sliceName,
     initialState,
     reducers: {
-        sortedProducts: (state, action) => {
+        onChangeProductSort: (state, action: TStoreAction<string>) => {
             switch (action.payload) {
                 case (TABS_ID.CHEAP):
                     state.data = state.data.sort((a, b) => a.price - b.price);
@@ -90,7 +98,7 @@ export const productsSlice = createSlice({
                     break;
             }
         },
-        onClickCurrentPage: (state, action) => {
+        onClickCurrentPage: (state, action: TStoreAction<number>) => {
             state.currentPage = action.payload;
         },
         onPaginateNext: (state) => {
@@ -99,39 +107,69 @@ export const productsSlice = createSlice({
         onPaginatePrev: (state) => {
             state.currentPage--;
         },
-        onChangeCurrentPage: (state, action) => {
-            if (action.payload > 3) {
-                state.currentStartPage = action.payload - 1
-                state.currentEndPage = action.payload + 1
-            } else {
-                state.currentStartPage = START_RANGE_PAGE
-                state.currentEndPage = END_RANGE_PAGE
+        onChangeCurrentPage: (state, action: TStoreAction<number>) => {
+            switch (true) {
+                case (action.payload > 3 && action.payload < state.totalPages - 2):
+                    state.currentStartPage = action.payload - 1
+                    state.currentEndPage = action.payload + 1
+                    break;
+                case (action.payload >= state.totalPages - 2):
+                    state.currentStartPage = state.totalPages - 3
+                    state.currentEndPage = state.totalPages - 1
+                    break;
+                default:
+                    state.currentStartPage = START_RANGE_PAGE
+                    state.currentEndPage = END_RANGE_PAGE
+                    break;
             }
-        }
+        },
+        setSearchQuery: (state, action: TStoreAction<string>) => {
+            state.searchQuery = action.payload
+        },
+        resetSearchRequest: (state) => {
+            state.isSearchFulfilled = false
+        },
     },
     extraReducers(builder) {
         builder
-            //Products
-            .addCase(fetchProducts.pending, (state, action) => {
+            .addCase(fetchProducts.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
+            .addCase(fetchSearchProducts.pending, (state) => {
+                state.fetchSearchProductsLoading = true;
+                state.fetchSearchProductsError = null;
+            })
             .addCase(fetchProducts.fulfilled, (state, action) => {
-                const { products, total, currentUser } = action.payload;
+
+                const { products, currentUser } = action.payload;
                 state.data = products;
                 state.defaultSort = state.data.slice();
-                state.total = total;
-                state.totalPages = Math.ceil(state.total / MAX_PRODUCT_PER_PAGE);
+                state.total = products.length;
+                state.totalPages = getTotalPages(state.total);
                 if (currentUser) {
                     state.favoriteProducts = products.filter(item => isLiked(item.likes, currentUser._id))
                 }
                 state.loading = false;
             })
+            .addCase(fetchSearchProducts.fulfilled, (state, action) => {
+
+                const products = action.payload;
+                state.isSearchFulfilled = true
+                state.data = products;
+                state.defaultSort = state.data.slice();
+                state.total = products.length;
+                state.totalPages = getTotalPages(state.total);
+                state.fetchSearchProductsLoading = false;
+            })
             .addCase(fetchProducts.rejected, (state, action) => {
                 state.error = action.payload;
                 state.loading = false;
             })
-            //Change Like
+            .addCase(fetchSearchProducts.rejected, (state, action) => {
+                state.fetchSearchProductsError = action.payload;
+                state.fetchSearchProductsLoading = false;
+            })
             .addCase(fetchChangeProductLike.fulfilled, (state, action) => {
                 const { product, liked } = action.payload;
                 state.data = state.data.map(cardState => {
@@ -154,10 +192,12 @@ export const productsSlice = createSlice({
 })
 
 export const {
-    sortedProducts,
+    onChangeProductSort,
     onClickCurrentPage,
     onPaginateNext,
     onPaginatePrev,
-    onChangeCurrentPage
+    onChangeCurrentPage,
+    setSearchQuery,
+    resetSearchRequest
 } = productsSlice.actions;
 export const productsReducer = productsSlice.reducer;

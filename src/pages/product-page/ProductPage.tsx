@@ -4,7 +4,6 @@ import Product from "modules/product/components/Product";
 import { changeLikeState, fetchProductItem } from "modules/product/store/productSlice";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Action } from "redux";
 import { useAppDispatch, useAppSelector } from "storage/hookTypes";
 import { TProductResponseDto } from "types/typesApi";
 import { NotFound } from "ui/not-found/NotFound";
@@ -14,7 +13,7 @@ const ProductPage = () => {
 
     const { productId } = useParams();
     const dispatch = useAppDispatch();
-    const { data: product, loading: isLoading, error: errorState } = useAppSelector(state => state.product)
+    const { fetchProductItemLoading: isProductLoading, fetchProductItemError: productError, data: product } = useAppSelector(state => state.product)
 
     const handleProductLike = (product: { likes: string[], _id: string }) => {
 
@@ -46,11 +45,11 @@ const ProductPage = () => {
     return (
         <div className="content container">
             <>
-                {isLoading
+                {isProductLoading
                     ? <Spinner />
-                    : !errorState && <Product onProductLike={handleProductLike} />
+                    : !productError && product && <Product onProductLike={handleProductLike} />
                 }
-                {!isLoading && errorState && <NotFound title='товар не найден' />}
+                {!isProductLoading && productError && <NotFound title='товар не найден' />}
             </>
         </div>
     )

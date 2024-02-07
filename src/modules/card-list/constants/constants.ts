@@ -1,8 +1,8 @@
-export const TABS_ID = {
-    CHEAP: "cheap",
-    LOW: "expensive",
-    DISCOUNT: "discount",
-    DEFAULT: "default",
+export enum TABS_ID {
+    CHEAP = "cheap",
+    LOW = "expensive",
+    DISCOUNT = "discount",
+    DEFAULT = "default",
 }
 export type Tab = {
     id: string,

@@ -15,23 +15,22 @@ import ButtonCount from 'components/button-count/ButtonCount';
 import { addProductCart, changeProductQuantityCart, decrementQuantityCart, incrementQuantityCart } from 'modules/cart';
 import { Review } from './review/Review';
 import FormReview from './form-review/FormReview';
+import { TReview } from 'types/products';
 
 interface IProductProps {
     onProductLike: (data: {likes:string[], _id:string}) => void
 }
 
 export const Product = ({onProductLike }: IProductProps) => {
-    const { name, description, pictures, price, wight, discount, likes = [], _id, reviews } = useAppSelector(state => state.product.data)
+    const { name, description, pictures, price, wight, discount, likes = [], _id, reviews } = useAppSelector(state => state.product?.data)
     const addDataCart = { _id, name, pictures, discount, price, wight }
     const currentUser = useAppSelector(state => state.user.data)
     const [currentRating, setCurrentRating] = useState<number>(5)
-    const navigate = useNavigate(); //хук для навигации по сайту
     const like = currentUser && isLiked(likes, currentUser._id)
     const dispatch = useAppDispatch();
 
-    //проверка наличия товара в корзине
     const cartProducts = useAppSelector(state => state.cart.data);  //корзина
-    const productInCartInfo = checkProductInCart(cartProducts, _id as string) ;  //проверяемый товар + проверка на сущ. _id
+    const productInCartInfo = checkProductInCart(cartProducts, _id) ;  //проверяемый товар + проверка на сущ. _id
 
     const handleLikeClick = () => {
         onProductLike({likes, _id: _id})        
@@ -43,13 +42,18 @@ export const Product = ({onProductLike }: IProductProps) => {
         dispatch(addProductCart(addDataCart))
     }
 
+    const handleIncrementClick = () => { dispatch(incrementQuantityCart(addDataCart)) }
+    const handleDecrementClick = () => { dispatch(decrementQuantityCart(addDataCart)) }
+    const handleCountChange = (newQuantity: number) => { dispatch(changeProductQuantityCart({ ...addDataCart, quantity: newQuantity })) }
+
+    const reviewRender = (reviewData: TReview, index: number) => <Review key={index} {...reviewData}/>
+
     return (
         <>
             <ContentHeader textButton={'назад'} title={name}>
                 <p className={s.articul}>Артикул: <b>664646</b></p>
                 <Rating currentRating={currentRating} setCurrentRating={setCurrentRating} />
             </ContentHeader>
-
             <div className={s.product}>
                 <div className={s.imgWrapper}>
                     <img src={pictures} alt={name} />
@@ -60,9 +64,9 @@ export const Product = ({onProductLike }: IProductProps) => {
                         <div className={s.left}>
                             <ButtonCount
                                 amount={productInCartInfo.quantity}
-                                handleIncrement={() => { dispatch(incrementQuantityCart(addDataCart)) }}
-                                handleDecrement={() => { dispatch(decrementQuantityCart(addDataCart)) }}
-                                handleCountChange={(newQuantity) => { dispatch(changeProductQuantityCart({ ...addDataCart, quantity: newQuantity })) }}
+                                handleIncrement={handleIncrementClick}
+                                handleDecrement={handleDecrementClick}
+                                handleCountChange={handleCountChange}
                             />
                         </div>
                         <Button action={handleCartClick} href='#' variant='primary'>{!productInCartInfo.quantity && productInCartInfo.quantity === 0 ? 'В корзину' : 'Добавлено'}</Button>
@@ -127,10 +131,7 @@ export const Product = ({onProductLike }: IProductProps) => {
                 </div>
             </div>
             <FormReview title={`Отзыв о товаре ${name}`} productId={_id}/>
-            {reviews?.length !== 0 && reviews?.map((reviewData, index) => <Review key={index} {...reviewData}/>).reverse()}
-
-            
-            
+            {reviews?.length !== 0 && reviews?.map(reviewRender).reverse()}  
         </>
     );
 }

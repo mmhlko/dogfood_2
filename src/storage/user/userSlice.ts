@@ -1,13 +1,13 @@
 import { createSlice, isFulfilled, isPending, isRejected } from '@reduxjs/toolkit';
 import { createAppAsyncThunk } from 'storage/hookTypes';
-import { deleteToken, getToken, setToken } from 'utils/auth';
+import { deleteToken, setToken } from 'utils/auth';
 import { getActionName } from 'utils/redux';
 import { TLoginFormData, TRegisterFormData } from 'modules/auth-form/api/authApi';
-import { AxiosError } from 'axios';
 import { TUserResponseDto } from 'types/typesApi';
 import { TStateError } from 'storage/reduxTypes';
 import { checkUserCart } from 'modules/cart/store/cart-slice';
 import { TUserBaseInfo, TUserPassword } from 'types/user';
+import { payloadCreatorError } from 'storage/helpers';
 
 export type TUserState = {
     isAuthChecked: boolean,
@@ -61,7 +61,7 @@ export const fetchRegisterUser = createAppAsyncThunk<TUserResponseDto, TRegister
             const data = (await authApi.register(dataUser)).data
             return fulfillWithValue(data)
         } catch (error) {
-            return rejectWithValue(error.message)
+            return rejectWithValue(payloadCreatorError(error))
         }
     }
 )
@@ -78,7 +78,7 @@ export const fetchPasswordReset = createAppAsyncThunk<TUserResponseDto, TUserPas
                 return rejectWithValue(data)
             }
         } catch (error) {
-            return rejectWithValue(error.message)
+            return rejectWithValue(payloadCreatorError(error))
         }
     }
 )
@@ -97,7 +97,7 @@ export const fetchLoginUser = createAppAsyncThunk<TUserResponseDto, TLoginFormDa
                 return rejectWithValue(data)
             }
         } catch (error) {
-            return rejectWithValue(error)
+            return rejectWithValue(payloadCreatorError(error))
         }
     }
 )
@@ -110,7 +110,7 @@ export const fetchCheckToken = createAppAsyncThunk<TUserResponseDto, string>(
             return fulfillWithValue(data)
         } catch (error) {
             deleteToken()
-            return rejectWithValue((error as AxiosError).message)
+            return rejectWithValue(payloadCreatorError(error))
         }
         finally { dispatch(authCheck()) }
     }
@@ -128,7 +128,7 @@ export const fetchEditUserInfo = createAppAsyncThunk<TUserResponseDto, TUserBase
                 return rejectWithValue(data)
             }
         } catch (error) {
-            return rejectWithValue(error)
+            return rejectWithValue(payloadCreatorError(error))
         }
     }
 )

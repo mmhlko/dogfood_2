@@ -1,4 +1,4 @@
-import { onChangeCurrentPage, onClickCurrentPage, onPaginateNext, onPaginatePrev, sortedProducts } from "../store/productsSlice";
+import { onChangeCurrentPage, onClickCurrentPage, onPaginateNext, onPaginatePrev, onChangeProductSort } from "../store/productsSlice";
 import { Card } from "./card/Card"
 import { Paginate } from "./paginate/Paginate";
 import s from './styles.module.scss';
@@ -31,7 +31,7 @@ export const CardList = memo(({ list }: ICardListProps) => {
     }
 
     const onChangeSort = (tab: string) => {
-        dispatch(sortedProducts(tab))
+        dispatch(onChangeProductSort(tab))
     }
 
     return (

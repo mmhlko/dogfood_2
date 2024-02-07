@@ -23,6 +23,7 @@ export function CartItem({
 }: ICartItemProps) {
 
     const addDataProduct = { _id, name, pictures, discount, price, wight, quantity }
+    //const addDataProduct = getProductCartData({ _id, name, pictures, discount, price, wight, quantity })
     const dispatch = useAppDispatch();
 
     return (
@@ -30,7 +31,7 @@ export function CartItem({
             <div className={s.cartItem}>
                 <div className={s.cartDesc}>
                     <img src={pictures} alt={name} className={s.cartImage} />
-                    <Link to={`${RoutePath.product}/${_id}`}><h2 className={s.cartTitle}>{name}</h2></Link>
+                    <Link to={`/product/${_id}`}><h2 className={s.cartTitle}>{name}</h2></Link>
                     <p className={s.cartWeight}>{wight}</p>
                 </div>
                 {!isGift && <ButtonCount

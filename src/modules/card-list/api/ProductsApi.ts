@@ -1,7 +1,8 @@
 import { AxiosResponse } from "axios";
 import { RoutePath } from "pages/routeConfig";
+import { TProduct } from "types/products";
+import { TProductResponseDto, TProductsResponseDto } from "types/typesApi";
 import { api } from "utils/api";
-import { TProductsResponseDto } from "../../../types/typesApi";
 
 export class ProductsService {
 
@@ -9,11 +10,10 @@ export class ProductsService {
         return api.get(RoutePath.products)
     }
 
-    // fetchSearchRequest(searchValue: string): Promise<AxiosResponse<TSpotRoutes>> {
-        
-    //     const requestPath = `${RoutePath.spots}?search=${searchValue}`
-    //     return api.get(requestPath);
-    // }
+    fetchSearchRequest(searchValue: string): Promise<AxiosResponse<TProduct[]>> {        
+        const requestPath = `${RoutePath.products}/search?query=${searchValue}`
+        return api.get(requestPath);
+    }
 }
 
 export const productsApi = new ProductsService();

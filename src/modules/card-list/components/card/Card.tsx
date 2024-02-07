@@ -8,11 +8,9 @@ import { ProductPrice } from 'components/product-price/ProductPrice';
 import { fetchChangeProductLike } from 'modules/card-list/store/productsSlice';
 import { useAppDispatch, useAppSelector } from 'storage/hookTypes';
 import { isLiked } from 'utils/products';
-import ContentLoader from "react-content-loader"
 import { addProductCart } from 'modules/cart';
 import { RoutePath } from 'pages/routeConfig';
 import { CardPreloader } from '../card-preloader/CardPreloader';
-import { TProductResponseDto } from 'types/typesApi';
 
 interface ICardProps {
     discount?: number,

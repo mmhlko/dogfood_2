@@ -21,13 +21,14 @@ module.exports = {
     ],
     'rules': {
         'react/jsx-indent': [2, 4],
-        'indent': [2, 4],
+        'indent': [2, 4, {SwitchCase: 1}],
         'react/jsx-filename-extension': [2, { "extensions": ['.js', '.jsx', '.tsx'] }],
         'import/no-unresolved': 'off',
         'import/prefer-default-export': 'off',
         'react/jsx-runtime': 'off',
+        "react/display-name": "off",
         'react/react-in-jsx-scope': 'off',
-        'no-unused-vars': 'warn',
+        'no-unused-vars': 'off',
         'no-undef': 'off'
     }
 }

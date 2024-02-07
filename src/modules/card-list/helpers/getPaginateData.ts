@@ -7,7 +7,8 @@ export const getPaginateData = (total: number, currentPage: number) => {
     const pages = Array.from({ length: totalPageCount }, (_, i) => i + 1)
     const indexStartItem = isPaginated ? ((currentPage - 1) * MAX_PRODUCT_PER_PAGE) : 0
     const indexLastItem = indexStartItem + MAX_PRODUCT_PER_PAGE;
-    console.log("isPaginated", isPaginated, total, ">", MAX_PRODUCT_PER_PAGE);
 
     return { totalPageCount, pages, indexStartItem, indexLastItem, isPaginated }
 }
+
+export const getTotalPages = (totalItems: number) => Math.ceil(totalItems / MAX_PRODUCT_PER_PAGE)
