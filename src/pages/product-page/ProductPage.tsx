@@ -20,26 +20,22 @@ const ProductPage = () => {
         //при нажатии лайка внутри страницы продукта, вызывается глобальная 
         //функция постановки лайка из App, которая возвращает конкретную карточку и обновляет стейт
         dispatch(fetchChangeProductLike({ likes: product.likes, _id: product._id }))
-            .then((updatedCard: PayloadAction<
-                {
-                    product: TProductResponseDto,
-                    liked: boolean
-                },
-                string,
-                { arg: { likes: string[]; _id: string; }; requestId: string; requestStatus: "fulfilled"; }
-            >) => {
-                if (updatedCard?.payload?.product) {
-                    dispatch(changeLikeState(updatedCard.payload.product))
-                }
-
-                //setProduct(updatedCard.payload.product) //карточка теперь лежит в сторе, поэтому берем из поля payload
-            })
+            // .then((updatedCard: PayloadAction<
+            //     {
+            //         product: TProductResponseDto,
+            //         liked: boolean
+            //     },
+            //     string,
+            //     { arg: { likes: string[]; _id: string; }; requestId: string; requestStatus: "fulfilled"; }
+            // >) => {                
+            //     if (updatedCard?.payload?.product) {
+            //         dispatch(changeLikeState(updatedCard.payload.product))
+            //     }
+            // })
     }
 
     useEffect(() => {
-        if (productId) {
-            dispatch(fetchProductItem(productId))
-        }
+        productId && dispatch(fetchProductItem(productId))
     }, [productId])
 
     return (

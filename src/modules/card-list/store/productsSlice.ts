@@ -9,6 +9,7 @@ import { TStoreAction } from "storage/reduxTypes"
 import { payloadCreatorError } from "storage/helpers"
 import { TProduct } from "types/products"
 import { getTotalPages } from "../helpers/getPaginateData"
+import { changeLikeState } from "modules/product/store/productSlice"
 
 const initialState: TProductsState = {
     data: [],
@@ -58,13 +59,14 @@ export const fetchSearchProducts = createAppAsyncThunk<TProduct[], string>(
 
 export const fetchChangeProductLike = createAppAsyncThunk<{ product: TProductResponseDto, liked: boolean }, { likes: string[], _id: string }>(
     `${sliceName}/fetchChangeLikeProduct`,
-    async (product, { fulfillWithValue, rejectWithValue, getState, extra: { productApi } }) => {
+    async (product, { fulfillWithValue, rejectWithValue, getState, dispatch, extra: { productApi } }) => {
         try {
             const { user } = await getState();
             const liked = user.data ? isLiked(product.likes, user.data._id) : false;
-            const data = (await productApi.changeProductLikeStatus(product._id, liked)).data;
+            const data = (await productApi.changeProductLikeStatus(product._id, liked)).data; //получение обновленной карточки
+            data && dispatch(changeLikeState(data))
             return fulfillWithValue({ product: data, liked })
-        } catch (error) {
+        } catch (error) {            
             return rejectWithValue(payloadCreatorError(error))
         }
     }
@@ -171,11 +173,13 @@ export const productsSlice = createSlice({
                 state.fetchSearchProductsLoading = false;
             })
             .addCase(fetchChangeProductLike.fulfilled, (state, action) => {
+                console.log("fetchChangeProductLike", action.payload);
+                
                 const { product, liked } = action.payload;
                 state.data = state.data.map(cardState => {
-                    return cardState._id === product._id ? product : cardState
+                    return cardState._id === product._id ? product : cardState //обновление карточки в списке, если id совпали
                 })
-                if (!liked) {
+                if (!liked) { //обновление избранных товаров
                     state.favoriteProducts.push(product)
                 } else {
                     state.favoriteProducts = state.favoriteProducts.filter(card => card._id !== product._id)
