@@ -2,7 +2,6 @@ import { useAppDispatch, useAppSelector } from 'storage/hookTypes';
 import s from './styles.module.scss';
 import classNames from 'classnames';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { checkProductInCart, isLiked } from 'utils/products';
 import { ContentHeader } from 'components/content-header/ContentHeader';
 import { Rating } from 'components/rating/Rating';
@@ -11,42 +10,39 @@ import { Button } from 'ui/button/Button';
 import Truck from "../assets/truck.svg"
 import Quality from "../assets/quality.svg"
 import LikeIcon from "../assets/like.svg"
-import ButtonCount from 'components/button-count/ButtonCount';
-import { addProductCart, changeProductQuantityCart, decrementQuantityCart, incrementQuantityCart } from 'modules/cart';
+import { addProductToCart } from 'modules/cart';
 import { Review } from './review/Review';
 import FormReview from './form-review/FormReview';
 import { TReview } from 'types/products';
+import { useCart } from 'hooks/useCart';
+import { ButtonCount } from 'components/button-count/ButtonCount';
 
 interface IProductProps {
-    onProductLike: (data: {likes:string[], _id:string}) => void
+    onProductLike: (data: { likes: string[], _id: string }) => void
 }
 
-export const Product = ({onProductLike }: IProductProps) => {
+export const Product = ({ onProductLike }: IProductProps) => {
     const { name, description, pictures, price, wight, discount, likes = [], _id, reviews } = useAppSelector(state => state.product?.data)
-    const addDataCart = { _id, name, pictures, discount, price, wight }
+    const productCartData = { _id, name, pictures, discount, price, wight }
     const currentUser = useAppSelector(state => state.user.data)
     const [currentRating, setCurrentRating] = useState<number>(5)
     const like = currentUser && isLiked(likes, currentUser._id)
     const dispatch = useAppDispatch();
-
+    const { handleCartCountChange, handleClickDecrement, handleClickIncrement } = useCart(productCartData)
     const cartProducts = useAppSelector(state => state.cart.data);  //корзина
-    const productInCartInfo = checkProductInCart(cartProducts, _id) ;  //проверяемый товар + проверка на сущ. _id
+    const productInCartInfo = checkProductInCart(cartProducts, _id);  //проверяемый товар + проверка на сущ. _id
 
     const handleLikeClick = () => {
-        onProductLike({likes, _id: _id})        
+        onProductLike({ likes, _id: _id })
     }
     const createMarkupDescription = () => {
         return { __html: description };
     }
     const handleCartClick = () => {
-        dispatch(addProductCart(addDataCart))
+        dispatch(addProductToCart(productCartData))
     }
 
-    const handleIncrementClick = () => { dispatch(incrementQuantityCart(addDataCart)) }
-    const handleDecrementClick = () => { dispatch(decrementQuantityCart(addDataCart)) }
-    const handleCountChange = (newQuantity: number) => { dispatch(changeProductQuantityCart({ ...addDataCart, quantity: newQuantity })) }
-
-    const reviewRender = (reviewData: TReview, index: number) => <Review key={index} {...reviewData}/>
+    const reviewRender = (reviewData: TReview, index: number) => <Review key={index} {...reviewData} />
 
     return (
         <>
@@ -64,12 +60,17 @@ export const Product = ({onProductLike }: IProductProps) => {
                         <div className={s.left}>
                             <ButtonCount
                                 amount={productInCartInfo.quantity}
-                                handleIncrement={handleIncrementClick}
-                                handleDecrement={handleDecrementClick}
-                                handleCountChange={handleCountChange}
+                                handleIncrement={handleClickIncrement}
+                                handleDecrement={handleClickDecrement}
+                                handleCountChange={handleCartCountChange}
                             />
                         </div>
-                        <Button action={handleCartClick} href='#' variant='primary'>{!productInCartInfo.quantity && productInCartInfo.quantity === 0 ? 'В корзину' : 'Добавлено'}</Button>
+                        <Button
+                            action={handleCartClick}
+                            variant='primary'
+                        >
+                            {!productInCartInfo.quantity && productInCartInfo.quantity === 0 ? 'В корзину' : 'Добавлено'}
+                        </Button>
                     </div>
                     <button className={classNames(s.favorite, { [s.favoriteActive]: like })} onClick={handleLikeClick}>
                         <LikeIcon />
@@ -130,8 +131,8 @@ export const Product = ({onProductLike }: IProductProps) => {
                     </div>
                 </div>
             </div>
-            <FormReview title={`Отзыв о товаре ${name}`} productId={_id}/>
-            {reviews?.length !== 0 && reviews?.map(reviewRender).reverse()}  
+            <FormReview title={`Отзыв о товаре ${name}`} productId={_id} />
+            {reviews?.length !== 0 && reviews?.map(reviewRender).reverse()}
         </>
     );
 }

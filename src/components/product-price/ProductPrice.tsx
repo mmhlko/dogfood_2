@@ -5,7 +5,7 @@ import classNames from 'classnames';
 interface IProductPriceProps {
   discount: number,
   price: number,
-  type: string,
+  type: "small" | "big",
   align?: string
 }
 

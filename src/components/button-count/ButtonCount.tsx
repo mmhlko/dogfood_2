@@ -1,5 +1,5 @@
 import s from './styles.module.scss';
-import { useState } from 'react';
+import { FocusEvent, useState } from 'react';
 import { useEffect } from 'react';
 
 interface IButtonCountProps {
@@ -13,23 +13,23 @@ export const ButtonCount = ({ amount = 0, handleIncrement, handleDecrement, hand
     const [value, setValue] = useState<number>(0);
     const MIN_COUNT_IN_CART = 1;
 
-    const handleBlurInput = (e: React.FocusEvent<HTMLInputElement>) => {
-        //указываем тип для элемента события напрямую через React.
+    const handleBlurInput = (e: FocusEvent<HTMLInputElement>) => {
         const countInCart = Number(e.target.value);
-        if (countInCart > 0) {
-            handleCountChange(countInCart)
-        } else {
-            handleCountChange(MIN_COUNT_IN_CART);
-        }
+        countInCart > 0 ? handleCountChange(countInCart) : handleCountChange(MIN_COUNT_IN_CART);
     }
 
-    const handleChangeInput = (e: React.FocusEvent<HTMLInputElement>) => {
+    const handleChangeInput = (e: FocusEvent<HTMLInputElement>) => {
         const countInCart = Number(e.target.value);
-        if (countInCart > 0) {
-            setValue(countInCart)
-        } else {
-            setValue(MIN_COUNT_IN_CART);
-        }
+        countInCart > 0 ? setValue(countInCart) : setValue(MIN_COUNT_IN_CART);
+    }
+
+    const handleIncrementClick = () => {
+        handleIncrement();
+        setValue(prevState => prevState + 1)
+    }
+    const handleDecrementClick = () => {
+        handleDecrement();
+        setValue(prevState => prevState - 1)
     }
 
     useEffect(() => {
@@ -41,19 +41,13 @@ export const ButtonCount = ({ amount = 0, handleIncrement, handleDecrement, hand
             <button
                 className={s.minus}
                 disabled={value <= 1}
-                onClick={() => {
-                    handleDecrement && handleDecrement();
-                    setValue(prevState => prevState - 1)
-                }}>-</button>
+                onClick={handleDecrementClick}
+            >-</button>
             <input type="number" className={s.num} value={value} onChange={handleChangeInput} onBlur={handleBlurInput} />
             <button
                 className={s.plus}
-                onClick={() => {
-                    handleIncrement && handleIncrement();
-                    setValue(prevState => prevState + 1)
-                }}>+</button>
+                onClick={handleIncrementClick}
+            >+</button>
         </div>
     )
 }
-
-export default ButtonCount;

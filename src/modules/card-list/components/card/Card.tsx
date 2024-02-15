@@ -9,7 +9,7 @@ import { ProductPrice } from 'components/product-price/ProductPrice';
 import { fetchChangeProductLike } from 'modules/card-list/store/productsSlice';
 import { useAppDispatch, useAppSelector } from 'storage/hookTypes';
 import { isLiked } from 'utils/products';
-import { addProductCart } from 'modules/cart';
+import { addProductToCart } from 'modules/cart';
 import { RoutePath } from 'pages/routeConfig';
 import { CardPreloader } from '../card-preloader/CardPreloader';
 
@@ -39,7 +39,7 @@ export const Card = ({ name, price, discount, wight, pictures, tags, likes, _id 
 
     const handleCartClick = (e: SyntheticEvent<HTMLAnchorElement>) => {
         e.preventDefault();
-        dispatch(addProductCart(addDataCart))
+        dispatch(addProductToCart(addDataCart))
     }
 
     const handleImageError = (e: SyntheticEvent<HTMLImageElement, Event>) => {
@@ -76,9 +76,9 @@ export const Card = ({ name, price, discount, wight, pictures, tags, likes, _id 
                             </button>
                         </div>
                         <Link to={`/product/${_id}`} className="card__link">
-                            <img src={pictures} alt={name} className="card__image" onError={handleImageError}/>
+                            <img src={pictures} alt={name} className="card__image" onError={handleImageError} />
                             <div className="card__desc">
-                                <ProductPrice price={price} discount={discount} type='small' />
+                                <ProductPrice price={price} discount={discount} type="small" />
                                 <span className="card__weight">{wight}</span>
                                 <h3 className="card__name">{name}</h3>
                             </div>

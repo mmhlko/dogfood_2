@@ -26,18 +26,18 @@ export type TReview ={
     city?: string
 }
 
-export type TProductInCart = {
+export type TProductCartData = {
     discount: number,
     pictures: string,
     _id: string,
     name: string,
     price: number,
     wight: string,
-    quantity: number;
+    quantity?: number
     isGift?: boolean;
 }
 
-export  type UserReviewBodyDto = {
+export type UserReviewBodyDto = {
     rating: number,
     text: string,
     city?: string

@@ -1,13 +1,13 @@
 import { createSelector, createSlice } from "@reduxjs/toolkit";
 import { Selector } from "react-redux";
-import { RootState } from "storage/reduxTypes";
-import { fetchCheckToken, fetchLoginUser, logout } from "storage/user/userSlice";
-import { TProductInCart } from "types/products";
+import { RootState, TStoreAction } from "storage/reduxTypes";
+import { logout } from "storage/user/userSlice";
+import { TProductCartData } from "types/products";
 import { calcDiscountPrice } from "utils/products";
 
 type TCartState = {
     totalCountProducts: number,
-    data: TProductInCart[],
+    data: TProductCartData[],
     userId: string
 }
 
@@ -39,7 +39,7 @@ export const cartInfoSelector: Selector<RootState, ICartInfo> = createSelector(
     selectECartData,
     (cart) => {
         return cart.reduce(
-            (total, item: TProductInCart) => {
+            (total, item: TProductCartData) => {
                 const priceDiscount = calcDiscountPrice(item.price, item.discount);
                 total[ECartData.amount] += item.price * item.quantity;
                 total[ECartData.amountWithDiscount] += (priceDiscount * item.quantity);
@@ -62,12 +62,12 @@ const cartSlice = createSlice({
     name: sliceName,
     initialState,
     reducers: {
-        addProductCart: (state, action) => {
-            const itemInCart = state.data.find(item => item._id === action.payload._id); 
+        addProductToCart: (state, action: TStoreAction<TProductCartData>) => {
+            const itemInCart = state.data.find(item => item._id === action.payload._id);
             itemInCart ? itemInCart.quantity++ : state.data.push({ ...action.payload, quantity: 1 })
             state.totalCountProducts++;
         },
-        removeProductCart: (state, action) => {
+        removeProductFromCart: (state, action: TStoreAction<TProductCartData>) => {
             state.data = state.data.filter(item => {
                 if (item._id === action.payload._id) {
                     state.totalCountProducts = state.totalCountProducts - action.payload.quantity;
@@ -75,7 +75,7 @@ const cartSlice = createSlice({
                 return item._id !== action.payload._id
             })
         },
-        changeProductQuantityCart: (state, action) => {
+        changeProductQuantityCart: (state, action: TStoreAction<TProductCartData>) => {
             const itemInCart = state.data.find(item => item._id === action.payload._id);
             if (itemInCart) {
                 if (itemInCart.quantity < action.payload.quantity) {
@@ -90,16 +90,16 @@ const cartSlice = createSlice({
                 state.data.push({ ...action.payload, quantity: action.payload.quantity })
             }
         },
-        incrementQuantityCart: (state, action) => {
+        incrementQuantityCart: (state, action: TStoreAction<TProductCartData>) => {
             const itemInCart = state.data.find(item => item._id === action.payload._id); //undefined or product
             if (itemInCart) {
-                itemInCart.quantity++;
+                itemInCart.quantity++
             } else {
                 state.data.push({ ...action.payload, quantity: 1 })
             }
             state.totalCountProducts++;
         },
-        decrementQuantityCart: (state, action) => {
+        decrementQuantityCart: (state, action: TStoreAction<TProductCartData>) => {
             const itemInCart = state.data.find(item => item._id === action.payload._id); //undefined or product
             if (itemInCart) {
                 if (itemInCart.quantity === 1) {
@@ -113,11 +113,11 @@ const cartSlice = createSlice({
         cartClear: (state) => {
             state.totalCountProducts = 0
         },
-        checkUserCart: (state, action: { payload: string; type: string }) => {
+        checkUserCart: (state, action: TStoreAction<string>) => {
             if (action.payload !== state.userId) {
-                return {...initialState, userId: action.payload}
+                return { ...initialState, userId: action.payload }
             }
-        }    
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -127,12 +127,12 @@ const cartSlice = createSlice({
     }
 })
 
-export const { 
-    addProductCart, 
-    removeProductCart, 
-    incrementQuantityCart, 
-    decrementQuantityCart, 
-    changeProductQuantityCart, 
+export const {
+    addProductToCart,
+    removeProductFromCart,
+    incrementQuantityCart,
+    decrementQuantityCart,
+    changeProductQuantityCart,
     cartClear,
     checkUserCart
 } = cartSlice.actions;

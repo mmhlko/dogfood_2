@@ -1,14 +1,14 @@
-import { TProductInCart } from 'types/products';
+import { TProductCartData } from 'types/products';
 import { CartItem } from '../cart-item/CartItem';
 import s from "./styles.module.scss";
 
 interface ICartListProps {
-    productsCart: (TProductInCart)[];
+    productsCart: (TProductCartData)[];
 }
 
 export const CartList = ({ productsCart }: ICartListProps) => {
 
-    const cartItemRender = (dataItem: TProductInCart, index: number) => (
+    const cartItemRender = (dataItem: TProductCartData, index: number) => (
         <CartItem key={index} {...dataItem} />
     )
 
